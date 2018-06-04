@@ -52,8 +52,8 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
-    public List<UserModel> getAll(int n) {
-        return userTableService.getAll(n).stream()
+    public List<UserModel> getAll(String equalConditions) {
+        return userTableService.getAll(equalConditions).stream()
                 .map(UserEntity::toModel)
                 .collect(Collectors.toList());
     }

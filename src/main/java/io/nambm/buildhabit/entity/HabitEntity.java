@@ -2,6 +2,7 @@ package io.nambm.buildhabit.entity;
 
 import com.microsoft.azure.storage.table.TableServiceEntity;
 import io.nambm.buildhabit.model.HabitModel;
+import io.nambm.buildhabit.model.submodel.Schedule;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.util.JsonUtils;
 
@@ -75,7 +76,7 @@ public class HabitEntity extends TableServiceEntity {
         model.setDescription(JsonUtils.getValue(content, "description", String.class));
         model.setIcon(JsonUtils.getValue(content, "icon", String.class));
 
-        model.setSchedules(schedules);
+        model.setSchedule(Schedule.from(schedules));
         model.setReminders(JsonUtils.getArray(reminders, Long.class));
         model.setTags(JsonUtils.getArray(tags, String.class));
         model.setLogs(JsonUtils.getArray(logs, Long.class));

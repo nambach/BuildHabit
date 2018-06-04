@@ -9,5 +9,5 @@ public interface UserTableService {
     boolean update(UserEntity entity);
     boolean remove(UserEntity entity);
     UserEntity get(String username);
-    List<UserEntity> getAll(int n);
+    List<UserEntity> getAll(String equalConditions);
 }

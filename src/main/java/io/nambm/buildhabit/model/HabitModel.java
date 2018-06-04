@@ -1,6 +1,8 @@
 package io.nambm.buildhabit.model;
 
+import com.eclipsesource.json.Json;
 import io.nambm.buildhabit.entity.HabitEntity;
+import io.nambm.buildhabit.model.submodel.Schedule;
 import io.nambm.buildhabit.util.JsonUtils;
 
 import java.util.Arrays;
@@ -15,7 +17,7 @@ public class HabitModel {
     private String description;
     private String icon;
 
-    private String schedules;
+    private Schedule schedule;
     private List<Long> reminders;
     private List<String> tags;
     private List<Long> logs;
@@ -66,12 +68,12 @@ public class HabitModel {
         this.icon = icon;
     }
 
-    public String getSchedules() {
-        return schedules;
+    public Schedule getSchedule() {
+        return schedule;
     }
 
-    public void setSchedules(String schedules) {
-        this.schedules = schedules;
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
     }
 
     public List<Long> getReminders() {
@@ -122,7 +124,7 @@ public class HabitModel {
 
         entity.setContent(JsonUtils.toJson(Arrays.asList("title", "description", "icon"),
                 Arrays.asList(title, description, icon)));
-        entity.setSchedules(schedules);
+        entity.setSchedules(JsonUtils.toJson(schedule));
         entity.setReminders(JsonUtils.toJson(reminders));
         entity.setLogs(JsonUtils.toJson(logs));
         entity.setTags(JsonUtils.toJson(tags));

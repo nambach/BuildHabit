@@ -169,4 +169,43 @@ public class JsonUtils {
 
         return builder.toString();
     }
+
+    public static <T> T fromJson(String json, Class<T> clazz) {
+        if (NULL.equals(json) || json == null) {
+            return null;
+        }
+
+        if (MinimalJsonTypeConverter.isPrimitive(clazz)) {
+            return convertToObject(Json.value(json), clazz);
+        }
+
+        if (MinimalJsonTypeConverter.isString(clazz)) {
+            return (T) StringUtils.removeAllChar(json, '"');
+        }
+
+        if (MinimalJsonTypeConverter.isList(clazz)) {
+            Class genericItemType = GenericUtils.getGenericType(clazz);
+            return (T) getArray(json, genericItemType);
+        }
+
+        try {
+            T object = clazz.getDeclaredConstructor().newInstance();
+
+            Field[] fields = clazz.getDeclaredFields();
+            JsonObject jsonObject = Json.parse(json).asObject();
+
+            for (Field field : fields) {
+                if (jsonObject.get(field.getName()) != null) {
+                    String value = convertToObject(jsonObject.get(field.getName()), String.class);
+
+                    field.setAccessible(true);
+                    field.set(object, fromJson(value, field.getType()));
+                }
+            }
+
+            return object;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

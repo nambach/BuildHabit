@@ -9,5 +9,5 @@ public interface UserBusiness {
     boolean update(UserModel model);
     boolean remove(UserModel model);
     UserModel get(String username);
-    List<UserModel> getAll(int n);
+    List<UserModel> getAll(String equalConditions);
 }

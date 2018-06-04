@@ -27,6 +27,6 @@ public class HabitTableServiceImpl extends TableServiceImpl<HabitEntity> impleme
 
     @Override
     public List<HabitEntity> getAllHabits(String username, String equalConditions) {
-        return searchByPartition(username, equalConditions);
+        return searchAll(username, equalConditions);
     }
 }

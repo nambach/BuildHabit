@@ -1,18 +1,21 @@
 package io.nambm.buildhabit.table.impl;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.ResultContinuation;
+import com.microsoft.azure.storage.ResultSegment;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.*;
 import io.nambm.buildhabit.table.TableService;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.util.JsonUtils;
+import io.nambm.buildhabit.util.StringUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class TableServiceImpl<T extends TableServiceEntity> implements TableService<T> {
 
@@ -20,6 +23,7 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
     private static final String AZURE_ACC_KEY = "AZURE_STORAGE_ACCOUNT_KEY";
     private static final String PARTITION_KEY = "PartitionKey";
     private static final String ROW_KEY = "RowKey";
+    private static final int MAX_QUERY_COUNT = 1000;
 
     private CloudTable cloudTable;
     private String tableName;
@@ -165,7 +169,7 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
     }
 
     @Override
-    public T search(String partitionKey, String rowKey) {
+    public T getEntity(String partitionKey, String rowKey) {
         try {
             // Create an operation to retrieve the entity with partition key and row key
             TableOperation retrieveOperation = TableOperation.retrieve(partitionKey, rowKey, entityClass);
@@ -180,8 +184,29 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
     }
 
     @Override
-    public List<T> searchByPartition(String partitionKey) {
+    public List<T> searchAll() {
         try {
+            ResultContinuation token = null;
+            List<T> list = new ArrayList<>();
+
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(TableQuery.from(entityClass), token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
+            return list;
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<T> searchAll(String partitionKey) {
+        try {
+            // Prepare partitionKey filter
             String partitionFilter = TableQuery.generateFilterCondition(
                     PARTITION_KEY,
                     TableQuery.QueryComparisons.EQUAL,
@@ -192,9 +217,15 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
                     TableQuery.from(entityClass)
                             .where(partitionFilter);
 
-            // Return collection of entity.
+            // Start query continually
             List<T> list = new ArrayList<>();
-            cloudTable.execute(partitionQuery).forEach(list::add);
+            ResultContinuation token = null;
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(partitionQuery, token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
             return list;
         } catch (Exception e) {
             // Output the stack trace.
@@ -204,95 +235,143 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
     }
 
     @Override
-    public List<T> searchByPartition(String partitionKey, String equalConditions) {
+    public List<T> searchAll(String partitionKey, String equalConditions) {
         try {
-            // Generate partition conditions
-            String partitionFilter = TableQuery.generateFilterCondition(
+
+            // Specify a combo query
+            TableQuery<T> query = getQuery(partitionKey, equalConditions);
+
+            // Collect entities.
+            List<T> list = new ArrayList<>();
+            ResultContinuation token = null;
+
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(query, token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
+            return list;
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<T> searchTop(int count, String partitionKey, String equalConditions) {
+        List<T> list = new ArrayList<>();
+
+        TableQuery<T> query = getQuery(partitionKey, equalConditions);
+
+        try {
+            if (count <= 0) {
+                return list;
+            } else if (count <= MAX_QUERY_COUNT) {
+                query = query.take(count);
+                cloudTable.execute(query).forEach(list::add);
+
+            } else {
+                ResultContinuation token = null;
+
+                do {
+                    ResultSegment<T> queryResult = cloudTable.executeSegmented(query, token);
+                    list.addAll(queryResult.getResults());
+                    token = queryResult.getContinuationToken();
+                    count -= MAX_QUERY_COUNT;
+                } while (count > MAX_QUERY_COUNT && token != null);
+
+                if (token != null) {
+                    query = query.take(count);
+                    ResultSegment<T> queryResult = cloudTable.executeSegmented(query, token);
+                    list.addAll(queryResult.getResults());
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Generate TableQuery object from pk and other columns' value
+     * Search 'ALL' if parameters left 'null'
+     *
+     * @return {@link TableQuery}
+     */
+    private TableQuery<T> getQuery(String partitionKey, String equalConditions) {
+
+        // Get combo filter
+        String searchFilter = getQueryFilter(partitionKey, equalConditions);
+
+        // Specify query
+        TableQuery<T> query = TableQuery.from(entityClass);
+        if (searchFilter != null) {
+            query = query.where(searchFilter);
+        }
+
+        return query;
+    }
+
+    /**
+     * Generate TableQuery String from PartitionKey and other columns' search value
+     * @param partitionKey pk search value/ ignore when null
+     * @param equalConditions other columns' search value/ ignore when null
+     * @return TableQuery String
+     */
+    private String getQueryFilter(String partitionKey, String equalConditions) {
+        String comboFilter = null;
+        String partitionFilter = null;
+        String equalFilter = null;
+
+        // Get partitionKey filter
+        if (partitionKey != null) {
+            partitionFilter = TableQuery.generateFilterCondition(
                     PARTITION_KEY,
                     TableQuery.QueryComparisons.EQUAL,
                     partitionKey);
+        }
 
-            // Generate equal conditions
-            final String[] searchFilter = {partitionFilter};
-            JsonUtils.toMap(equalConditions, String.class).forEach((key, value) -> {
-                String equalFilter = TableQuery.generateFilterCondition(
+        // Get equalCondition filter
+        if (equalConditions != null) {
+            Map<String, String> map = JsonUtils.toMap(equalConditions, String.class);
+
+            // Gather equal conditions from JSON string
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                String key = StringUtils.capitalize(entry.getKey(), 0);
+                String value = entry.getValue();
+
+                String filter = TableQuery.generateFilterCondition(
                         key,
                         TableQuery.QueryComparisons.EQUAL,
                         value);
-                searchFilter[0] = TableQuery.combineFilters(searchFilter[0], TableQuery.Operators.AND, equalFilter);
-            });
 
-            // Specify query
-            TableQuery<T> partitionQuery =
-                    TableQuery.from(entityClass)
-                            .where(searchFilter[0]);
-
-            // Return collection of entity.
-            List<T> list = new ArrayList<>();
-            cloudTable.execute(partitionQuery).forEach(list::add);
-            return list;
-        } catch (Exception e) {
-            // Output the stack trace.
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    @Override
-    public List<T> searchTop(int count) {
-        if (count > 1000) {
-            count = 1000;
-        }
-        if (count < 0) {
-            count = 0;
+                if (equalFilter != null) {
+                    equalFilter = TableQuery.combineFilters(
+                            equalFilter,
+                            TableQuery.Operators.AND,
+                            filter);
+                } else {
+                    equalFilter = filter;
+                }
+            }
         }
 
-        try {
-            // Specify a partition query, using "Smith" as the partition key filter.
-            TableQuery<T> query =
-                    TableQuery.from(entityClass)
-                            .take(count);
-
-            // Return collection of entity.
-            List<T> list = new ArrayList<>();
-            cloudTable.execute(query).forEach(list::add);
-            return list;
-        } catch (Exception e) {
-            // Output the stack trace.
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
-
-    @Override
-    public List<T> searchTop(String partitionKey, int count) {
-        if (count > 1000) {
-            count = 1000;
-        }
-        if (count < 0) {
-            count = 0;
+        // Combine to the previous filter
+        if (partitionFilter != null && equalFilter != null) {
+            comboFilter = TableQuery.combineFilters(
+                    partitionFilter,
+                    TableQuery.Operators.AND,
+                    equalFilter);
+        } else if (partitionFilter != null) {
+            comboFilter = partitionFilter;
+        } else if (equalFilter != null) {
+            comboFilter = equalFilter;
         }
 
-        try {
-            // Specify a partition query, using "Smith" as the partition key filter.
-            String partitionFilter = TableQuery.generateFilterCondition(
-                    PARTITION_KEY,
-                    TableQuery.QueryComparisons.EQUAL,
-                    partitionKey);
-
-            TableQuery<T> query =
-                    TableQuery.from(entityClass)
-                            .where(partitionKey)
-                            .take(count);
-
-            // Return collection of entity.
-            List<T> list = new ArrayList<>();
-            cloudTable.execute(query).forEach(list::add);
-            return list;
-        } catch (Exception e) {
-            // Output the stack trace.
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
+        return comboFilter;
     }
 }

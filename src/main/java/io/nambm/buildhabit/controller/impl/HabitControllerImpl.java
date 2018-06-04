@@ -25,12 +25,18 @@ public class HabitControllerImpl implements HabitController {
     @PostMapping("/habit/add")
     public ResponseEntity add(@RequestParam String username,
                               @RequestParam String title,
-                              @RequestParam String description) {
+                              @RequestParam String description,
+                              @RequestParam List<String> tags,
+                              @RequestParam String startTime,
+                              @RequestParam String endTime) {
         HabitModel habitModel = new HabitModel();
         habitModel.setUsername(username);
         habitModel.setId(new Date().toString());
         habitModel.setTitle(title);
         habitModel.setDescription(description);
+        habitModel.setTags(tags);
+        habitModel.setStartTime(Long.parseLong(startTime));
+        habitModel.setEndTime(Long.parseLong(endTime));
 
         HttpStatus status = habitService.insert(habitModel);
         return new ResponseEntity(status);

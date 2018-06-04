@@ -14,13 +14,13 @@ public interface TableService<T> {
 
     T delete(T entity);
 
-    T search(String partitionKey, String rowKey);
+    T getEntity(String partitionKey, String rowKey);
 
-    List<T> searchByPartition(String partitionKey);
+    List<T> searchAll();
 
-    List<T> searchByPartition(String partitionKey, String equalConditions);
+    List<T> searchAll(String partitionKey);
 
-    List<T> searchTop(int count);
+    List<T> searchAll(String partitionKey, String equalConditions);
 
-    List<T> searchTop(String partitionKey, int count);
+    List<T> searchTop(int count, String partitionKey, String equalConditions);
 }

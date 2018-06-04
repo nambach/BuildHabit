@@ -26,11 +26,11 @@ public class UserTableServiceImpl extends TableServiceImpl<UserEntity> implement
 
     @Override
     public UserEntity get(String username) {
-        return search(username, username);
+        return getEntity(username, username);
     }
 
     @Override
-    public List<UserEntity> getAll(int n) {
-        return searchTop("namebm", n);
+    public List<UserEntity> getAll(String equalConditions) {
+        return searchAll(null, equalConditions);
     }
 }

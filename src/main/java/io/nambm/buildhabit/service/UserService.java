@@ -11,5 +11,5 @@ public interface UserService {
     HttpStatus update(UserModel model);
     HttpStatus remove(UserModel model);
     ResponseEntity<UserModel> get(String username);
-    ResponseEntity<List<UserModel>> getAll(int n);
+    ResponseEntity<List<UserModel>> getAll(String equalConditions);
 }

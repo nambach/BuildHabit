@@ -9,12 +9,22 @@ import java.util.Map;
 
 class MinimalJsonTypeConverter {
 
-    private static final Collection<Class> PRIMITIVE_TYPES = Arrays.asList(Boolean.TYPE, Byte.TYPE, Character.TYPE,
-            Short.TYPE, Integer.TYPE, Long.TYPE, Float.TYPE, Double.TYPE);
+    private static final Collection<Class> PRIMITIVE_TYPES = Arrays.asList(Boolean.class, Byte.class, Character.class,
+            Short.class, Integer.class, Long.class, Float.class, Double.class);
 
     static boolean isPrimitive(Object object) {
         for (Class clazz : PRIMITIVE_TYPES) {
+            Class c = object.getClass();
             if (clazz.equals(object.getClass())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean isPrimitive(Class myClass) {
+        for (Class clazz : PRIMITIVE_TYPES) {
+            if (clazz.equals(myClass)) {
                 return true;
             }
         }
@@ -25,8 +35,21 @@ class MinimalJsonTypeConverter {
         return String.class.equals(object.getClass());
     }
 
+    static boolean isString(Class myClass) {
+        return String.class.equals(myClass);
+    }
+
     static boolean isList(Object object) {
         for (Class clazz : object.getClass().getInterfaces()) {
+            if (clazz.equals(List.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean isList(Class myClass) {
+        for (Class clazz : myClass.getInterfaces()) {
             if (clazz.equals(List.class)) {
                 return true;
             }

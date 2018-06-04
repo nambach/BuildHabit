@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<List<UserModel>> getAll(int n) {
-        return new ResponseEntity<>(userBusiness.getAll(n), HttpStatus.OK);
+    public ResponseEntity<List<UserModel>> getAll(String equalConditions) {
+        return new ResponseEntity<>(userBusiness.getAll(equalConditions), HttpStatus.OK);
     }
 }

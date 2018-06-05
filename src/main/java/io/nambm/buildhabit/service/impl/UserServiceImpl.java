@@ -1,7 +1,7 @@
 package io.nambm.buildhabit.service.impl;
 
 import io.nambm.buildhabit.business.UserBusiness;
-import io.nambm.buildhabit.model.UserModel;
+import io.nambm.buildhabit.model.user.UserModel;
 import io.nambm.buildhabit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

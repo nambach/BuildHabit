@@ -2,7 +2,7 @@ package io.nambm.buildhabit.business.impl;
 
 import io.nambm.buildhabit.business.UserBusiness;
 import io.nambm.buildhabit.entity.UserEntity;
-import io.nambm.buildhabit.model.UserModel;
+import io.nambm.buildhabit.model.user.UserModel;
 import io.nambm.buildhabit.storage.UserTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

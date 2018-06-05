@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.controller;
 
-import io.nambm.buildhabit.model.HabitModel;
+import io.nambm.buildhabit.model.habit.DailyHabit;
+import io.nambm.buildhabit.model.habit.HabitModel;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 
@@ -27,6 +28,19 @@ public interface HabitController {
                        String schedule, String tags, String startTime, String endTime);
 
     @ApiOperation("Load all habits")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
+            @ApiImplicitParam(name = "equalCondition", defaultValue = "{}", value = "Conditions")
+    })
     @ApiResponse(code = 200, message = "Found")
     ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalCondition);
+
+    @ApiOperation("Load all habits in current week")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
+            @ApiImplicitParam(name = "equalCondition", defaultValue = "{}", value = "Conditions"),
+            @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "0")
+    })
+    @ApiResponse(code = 200, message = "Found")
+    ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(String username, String equalCondition, int offsetMillis);
 }

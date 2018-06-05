@@ -1,6 +1,6 @@
 package io.nambm.buildhabit.controller;
 
-import io.nambm.buildhabit.model.UserModel;
+import io.nambm.buildhabit.model.user.UserModel;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 

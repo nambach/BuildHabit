@@ -1,7 +1,7 @@
 package io.nambm.buildhabit.entity;
 
 import com.microsoft.azure.storage.table.TableServiceEntity;
-import io.nambm.buildhabit.model.UserModel;
+import io.nambm.buildhabit.model.user.UserModel;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 
 @AzureTableName("user")

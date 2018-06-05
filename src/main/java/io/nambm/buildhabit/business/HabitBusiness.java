@@ -1,6 +1,6 @@
 package io.nambm.buildhabit.business;
 
-import io.nambm.buildhabit.model.HabitModel;
+import io.nambm.buildhabit.model.habit.HabitModel;
 
 import java.util.List;
 

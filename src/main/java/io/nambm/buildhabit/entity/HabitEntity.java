@@ -1,8 +1,8 @@
 package io.nambm.buildhabit.entity;
 
 import com.microsoft.azure.storage.table.TableServiceEntity;
-import io.nambm.buildhabit.model.HabitModel;
-import io.nambm.buildhabit.model.submodel.Schedule;
+import io.nambm.buildhabit.model.habit.HabitModel;
+import io.nambm.buildhabit.model.habit.Schedule;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.util.JsonUtils;
 

@@ -1,14 +1,15 @@
-package io.nambm.buildhabit.model.submodel;
+package io.nambm.buildhabit.model.habit;
 
 public class DailyTimePoint {
     private int hour;
     private int minute;
+    private int totalMinutes;
 
     public DailyTimePoint(int hour, int minute) {
         this.hour = hour;
         this.minute = minute;
+        this.totalMinutes = hour * 60 + minute;
     }
-
 
     public int getHour() {
         return hour;
@@ -24,6 +25,14 @@ public class DailyTimePoint {
 
     public void setMinute(int minute) {
         this.minute = minute;
+    }
+
+    public int getTotalMinutes() {
+        return totalMinutes;
+    }
+
+    public void setTotalMinutes(int totalMinutes) {
+        this.totalMinutes = totalMinutes;
     }
 
     public String toString() {

@@ -1,8 +1,9 @@
 package io.nambm.buildhabit.controller.impl;
 
 import io.nambm.buildhabit.controller.HabitController;
-import io.nambm.buildhabit.model.HabitModel;
-import io.nambm.buildhabit.model.submodel.Schedule;
+import io.nambm.buildhabit.model.habit.DailyHabit;
+import io.nambm.buildhabit.model.habit.HabitModel;
+import io.nambm.buildhabit.model.habit.Schedule;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +54,10 @@ public class HabitControllerImpl implements HabitController {
     public ResponseEntity<List<HabitModel>> getAllHabits(@RequestParam String username,
                                                          @RequestParam String equalCondition) {
         return habitService.getAllHabits(username, equalCondition);
+    }
+
+    @GetMapping("habit/this-week")
+    public ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(String username, String equalCondition, int offsetMillis) {
+        return habitService.getThisWeekHabits(username, equalCondition, offsetMillis);
     }
 }

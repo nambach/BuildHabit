@@ -1,6 +1,6 @@
 package io.nambm.buildhabit.service;
 
-import io.nambm.buildhabit.model.UserModel;
+import io.nambm.buildhabit.model.user.UserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 

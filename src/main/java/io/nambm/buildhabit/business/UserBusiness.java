@@ -1,6 +1,6 @@
 package io.nambm.buildhabit.business;
 
-import io.nambm.buildhabit.model.UserModel;
+import io.nambm.buildhabit.model.user.UserModel;
 
 import java.util.List;
 

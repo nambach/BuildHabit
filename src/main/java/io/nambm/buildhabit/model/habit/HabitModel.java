@@ -1,8 +1,6 @@
-package io.nambm.buildhabit.model;
+package io.nambm.buildhabit.model.habit;
 
-import com.eclipsesource.json.Json;
 import io.nambm.buildhabit.entity.HabitEntity;
-import io.nambm.buildhabit.model.submodel.Schedule;
 import io.nambm.buildhabit.util.JsonUtils;
 
 import java.util.Arrays;

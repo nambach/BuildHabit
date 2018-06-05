@@ -1,4 +1,4 @@
-package io.nambm.buildhabit.model;
+package io.nambm.buildhabit.model.user;
 
 import io.nambm.buildhabit.entity.UserEntity;
 

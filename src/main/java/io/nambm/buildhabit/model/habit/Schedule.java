@@ -1,8 +1,7 @@
-package io.nambm.buildhabit.model.submodel;
+package io.nambm.buildhabit.model.habit;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import io.nambm.buildhabit.util.JsonUtils;
 
 import java.util.List;
 

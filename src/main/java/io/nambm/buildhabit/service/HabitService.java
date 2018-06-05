@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.service;
 
-import io.nambm.buildhabit.model.HabitModel;
+import io.nambm.buildhabit.model.habit.DailyHabit;
+import io.nambm.buildhabit.model.habit.HabitModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -14,4 +15,6 @@ public interface HabitService {
     HttpStatus remove(HabitModel model);
 
     ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions);
+
+    ResponseEntity<List<DailyHabit>> getThisWeekHabits(String username, String equalConditions, int offsetMillis);
 }

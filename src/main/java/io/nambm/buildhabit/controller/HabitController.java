@@ -17,8 +17,8 @@ public interface HabitController {
             @ApiImplicitParam(name = "description", value = "Description", defaultValue = ""),
             @ApiImplicitParam(name = "schedule", value = "Schedule", defaultValue = "{\"from\":{\"hour\":6,\"minute\":0},\"to\":{\"hour\":7,\"minute\":0},\"repetition\":\"weekly\",\"times\":[\"mon\",\"tue\",\"sat\"]}"),
             @ApiImplicitParam(name = "tags", value = "Tags", defaultValue = "[]"),
-            @ApiImplicitParam(name = "startTime", value = "Start Time", defaultValue = ""),
-            @ApiImplicitParam(name = "endTime", value = "End Time", defaultValue = "")
+            @ApiImplicitParam(name = "startTime", value = "Start Time", defaultValue = "0"),
+            @ApiImplicitParam(name = "endTime", value = "End Time", defaultValue = "0")
     })
     @ApiResponses({
             @ApiResponse(code = 201, message = "User has been created"),

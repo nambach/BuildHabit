@@ -1,6 +1,9 @@
 package io.nambm.buildhabit.util.date;
 
 import io.nambm.buildhabit.model.habit.Schedule;
+import io.nambm.buildhabit.util.TimeUtils;
+
+import java.util.Calendar;
 
 public class Day {
     public final String day;
@@ -70,6 +73,10 @@ public class Day {
     }
 
     public boolean equals(Day day, String bound) {
+        if (Schedule.Repetition.WEEKLY.equals(bound)) {
+            return this.day.equals(day.day);
+        }
+
         if (Schedule.Repetition.MONTHLY.equals(bound)) {
             return this.date == day.date;
         }
@@ -79,5 +86,13 @@ public class Day {
         }
 
         return false;
+    }
+
+    public static Day from(long time, int offsetMillis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.getTimeZone().setRawOffset(offsetMillis);
+        calendar.setTimeInMillis(time);
+
+        return TimeUtils.convert(calendar);
     }
 }

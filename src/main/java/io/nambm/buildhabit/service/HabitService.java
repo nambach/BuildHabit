@@ -17,4 +17,6 @@ public interface HabitService {
     ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions);
 
     ResponseEntity<List<DailyHabit>> getThisWeekHabits(String username, String equalConditions, int offsetMillis);
+
+    ResponseEntity<List<DailyHabit>> getHabitsByDateRange(long from, long to, String username, String equalConditions, int offsetMillis);
 }

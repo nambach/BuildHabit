@@ -6,6 +6,7 @@ import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habit.Schedule;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.JsonUtils;
+import io.nambm.buildhabit.util.TimeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,8 +57,26 @@ public class HabitControllerImpl implements HabitController {
         return habitService.getAllHabits(username, equalCondition);
     }
 
-    @GetMapping("habit/this-week")
-    public ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(String username, String equalCondition, int offsetMillis) {
+    @GetMapping("/habit/this-week")
+    public ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(@RequestParam String username,
+                                                                 @RequestParam String equalCondition,
+                                                                 @RequestParam int offsetMillis) {
         return habitService.getThisWeekHabits(username, equalCondition, offsetMillis);
+    }
+
+    @GetMapping("/habit/by-time")
+    public ResponseEntity<List<DailyHabit>> getHabits(@RequestParam String username,
+                                                      @RequestParam String equalCondition,
+                                                      @RequestParam String from,
+                                                      @RequestParam String to,
+                                                      @RequestParam int offsetMillis) {
+        long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.DD_MM_YYYY);
+        long toTime = TimeUtils.getTimeMillis(to, TimeUtils.DD_MM_YYYY);
+
+        if (fromTime == 0 || toTime == 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            return habitService.getHabitsByDateRange(fromTime, toTime, username, equalCondition, offsetMillis);
+        }
     }
 }

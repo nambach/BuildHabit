@@ -4,17 +4,16 @@ import io.nambm.buildhabit.constant.AppConstant;
 import io.nambm.buildhabit.util.date.Day;
 import io.nambm.buildhabit.util.date.Week;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class TimeUtils {
 
     public static final List<String> DAY_OF_WEEK = Arrays.asList("mon", "tue", "wed", "thu", "fri", "sat", "sun");
+    public static final String DD_MM_YYYY = "dd/MM/yyyy";
 
-    private static int getCalendarDayOfWeek(String dayOfWeek) {
+    public static int getCalendarDayOfWeek(String dayOfWeek) {
         switch (dayOfWeek.toLowerCase()) {
             case AppConstant.MON:
                 return Calendar.MONDAY;
@@ -35,7 +34,7 @@ public class TimeUtils {
         }
     }
 
-    private static String getCalendarDayOfWeek(int dayOfWeek) {
+    public static String getCalendarDayOfWeek(int dayOfWeek) {
         switch (dayOfWeek) {
             case Calendar.MONDAY:
                 return AppConstant.MON;
@@ -56,7 +55,7 @@ public class TimeUtils {
         }
     }
 
-    private static Day convert(Calendar calendar) {
+    public static Day convert(Calendar calendar) {
         String dayOfWeek = new SimpleDateFormat("EE").format(calendar.getTime());
         return new Day(dayOfWeek.toLowerCase(),
                 calendar.get(Calendar.DAY_OF_MONTH),
@@ -106,10 +105,47 @@ public class TimeUtils {
         return new Week(monday, tuesday, wednesday, thursday, friday, saturday, sunday);
     }
 
+    public static List<Day> getDays(long from, long to, Calendar calendar) {
+        List<Day> days = new LinkedList<>();
+
+        // Set the 'to' date
+        calendar.setTimeInMillis(to);
+        calendar.set(Calendar.HOUR_OF_DAY, 23); // ! clear would not reset the hour of day !
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        long boundary = calendar.getTimeInMillis();
+
+        // Set the 'from' date
+        calendar.setTimeInMillis(from);
+        calendar.set(Calendar.HOUR_OF_DAY, 0); // ! clear would not reset the hour of day !
+        calendar.clear(Calendar.MINUTE);
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
+
+        while (calendar.getTimeInMillis() < boundary) {
+            days.add(convert(calendar));
+            calendar.add(Calendar.DATE, 1);
+        }
+
+        return days;
+    }
+
     public static long combineTimeMillis(long timeMillis, int hour, int minute, Calendar calendar) {
         calendar.setTimeInMillis(timeMillis);
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         return calendar.getTimeInMillis();
+    }
+
+    public static long getTimeMillis(String time, String timeUtilsPattern) {
+        if (DD_MM_YYYY.equals(timeUtilsPattern)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(timeUtilsPattern);
+            try {
+                return dateFormat.parse(time).getTime();
+            } catch (ParseException ignored) {
+            }
+        }
+        return 0;
     }
 }

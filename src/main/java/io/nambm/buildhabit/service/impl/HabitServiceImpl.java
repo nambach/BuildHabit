@@ -58,9 +58,9 @@ public class HabitServiceImpl implements HabitService {
         }
 
         List<HabitModel> habits = habitBusiness.getAllHabits(username, equalConditions);
-        classifyWeeklyHabits(calendar, week, map, habits);
-        classifyMonthlyHabits(calendar, week, map, habits);
-        classifyYearlyHabits(calendar, week, map, habits);
+        classifyHabits(habits, map, week.getDays(), Schedule.Repetition.WEEKLY, calendar);
+        classifyHabits(habits, map, week.getDays(), Schedule.Repetition.MONTHLY, calendar);
+        classifyHabits(habits, map, week.getDays(), Schedule.Repetition.YEARLY, calendar);
 
         // Convert to a list
         List<DailyHabit> dailyHabits = map.entrySet()
@@ -77,46 +77,50 @@ public class HabitServiceImpl implements HabitService {
         return new ResponseEntity<>(dailyHabits, HttpStatus.OK);
     }
 
-    private void classifyWeeklyHabits(Calendar calendar, Week week, Map<Day, DailyHabit> classifiedHabits, List<HabitModel> allHabits) {
+    @Override
+    public ResponseEntity<List<DailyHabit>> getHabitsByDateRange(long from, long to, String username, String equalConditions, int offsetMillis) {
+        // Init necessary variables
+        Calendar calendar = Calendar.getInstance();
+        calendar.getTimeZone().setRawOffset(offsetMillis);
+        List<Day> days = TimeUtils.getDays(from, to, calendar);
 
-        // Get weekly habits
+        // Init map to classify
+        Map<Day, DailyHabit> map = new LinkedHashMap<>();
+        for (Day day : days) {
+            map.put(day, new DailyHabit(day, true));
+        }
+
+        List<HabitModel> habits = habitBusiness.getAllHabits(username, equalConditions);
+        classifyHabits(habits, map, days, Schedule.Repetition.WEEKLY, calendar);
+        classifyHabits(habits, map, days, Schedule.Repetition.MONTHLY, calendar);
+        classifyHabits(habits, map, days, Schedule.Repetition.YEARLY, calendar);
+
+        // Convert to a list
+        List<DailyHabit> dailyHabits = map.entrySet()
+                .stream()
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+
+        // Sort habits by time
+        dailyHabits.forEach(dailyHabit ->
+                dailyHabit.getHabits()
+                        .sort(Comparator.comparingLong(DailyHabitModel::getTime))
+        );
+
+        return new ResponseEntity<>(dailyHabits, HttpStatus.OK);
+    }
+
+    private void classifyHabits(List<HabitModel> allHabits, Map<Day, DailyHabit> classifiedHabits, List<Day> days, String repetition, Calendar calendar) {
+
+        // Get all habits and filter by 'repetition'
         List<HabitModel> weeklyHabits = allHabits
                 .stream()
                 .filter(habit ->
-                        Schedule.Repetition.WEEKLY.equals(habit.getSchedule().getRepetition()))
+                        repetition.equals(habit.getSchedule().getRepetition()))
                 .collect(Collectors.toList());
 
-        // Classify habits according to day of week
-        weeklyHabits.forEach(weeklyHabit -> {
-
-            // Iterate all days of week
-            List<Day> daysOfWeek = weeklyHabit.getSchedule().getTimes();
-            daysOfWeek.forEach(dayOfWeek -> {
-
-                DailyHabit dailyHabit = classifiedHabits.get(week.get(dayOfWeek.day));
-
-                // Calculate the time to alarm
-                long timeToAlarm = getAlarmTimeMillis(dailyHabit.getDay(), weeklyHabit.getSchedule().getFrom(), calendar);
-
-                dailyHabit.getHabits().add(
-                        DailyHabitModel.from(weeklyHabit, timeToAlarm)
-                );
-            });
-        });
-    }
-
-    private void classifyMonthlyHabits(Calendar calendar, Week week, Map<Day, DailyHabit> classifiedHabits, List<HabitModel> allHabits) {
-
-        // Get monthly habits
-        List<HabitModel> monthlyHabits = allHabits
-                .stream()
-                .filter(habit ->
-                        Schedule.Repetition.MONTHLY.equals(habit.getSchedule().getRepetition()))
-                .collect(Collectors.toList());
-
-        // Classify habits according to day of month
-        for (Day day : week) {
-            for (HabitModel habit : monthlyHabits) {
+        for (Day day : days) {
+            for (HabitModel habit : weeklyHabits) {
                 for (Day time : habit.getSchedule().getTimes()) {
                     if (time.equals(day, habit.getSchedule().getRepetition())) {
 
@@ -129,62 +133,10 @@ public class HabitServiceImpl implements HabitService {
                 }
             }
         }
-
-    }
-
-    private void classifyYearlyHabits(Calendar calendar, Week week, Map<Day, DailyHabit> classifiedHabits, List<HabitModel> allHabits) {
-
-        // Get monthly habits
-        List<HabitModel> monthlyHabits = allHabits
-                .stream()
-                .filter(habit ->
-                        Schedule.Repetition.YEARLY.equals(habit.getSchedule().getRepetition()))
-                .collect(Collectors.toList());
-
-        // Classify habits according to day of month
-        for (Day day : week) {
-            for (HabitModel habit : monthlyHabits) {
-                for (Day time : habit.getSchedule().getTimes()) {
-                    if (time.equals(day, habit.getSchedule().getRepetition())) {
-
-                        // Calculate the time to alarm
-                        long timeToAlarm = getAlarmTimeMillis(day, habit.getSchedule().getFrom(), calendar);
-
-                        classifiedHabits.get(day).getHabits()
-                                .add(DailyHabitModel.from(habit, timeToAlarm));
-                    }
-                }
-            }
-        }
-
     }
 
     private long getAlarmTimeMillis(Day day, DailyTimePoint timePoint, Calendar calendar) {
         // Todo: Apply the reminder margin
         return TimeUtils.combineTimeMillis(day.time, timePoint.getHour(), timePoint.getMinute(), calendar);
-    }
-
-    /**
-     * Compare time and timePoint
-     *
-     * @param time in millisecond
-     * @param timePoint in {@link Day}
-     * @param calendar provided Calendar
-     * @param repetition type of the timePoint
-     * @return
-     */
-    private boolean compare(long time, Day timePoint, Calendar calendar, String repetition) {
-        calendar.setTimeInMillis(time);
-
-        if (Schedule.Repetition.MONTHLY.equals(repetition)) {
-            return calendar.get(Calendar.DATE) == timePoint.date;
-        }
-
-        if (Schedule.Repetition.YEARLY.equals(repetition)) {
-            return calendar.get(Calendar.DATE) == timePoint.date
-                    && calendar.get(Calendar.MONTH) + 1 == timePoint.month;
-        }
-
-        return false;
     }
 }

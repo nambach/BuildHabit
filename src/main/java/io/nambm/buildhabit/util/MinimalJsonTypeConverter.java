@@ -107,7 +107,7 @@ class MinimalJsonTypeConverter {
         return (T) object;
     }
 
-    private static String convertToString(JsonValue jsonValue) {
+    public static String convertToString(JsonValue jsonValue) {
         if (jsonValue.isString()) {
             return jsonValue.asString();
         } else {

@@ -8,17 +8,17 @@ public class DailyHabitModel {
     // contents
     private String title;
     private String description;
+    private String timeRange;
     private String icon;
 
     private List<String> tags;
     private Long time;
 
-    //TODO: margin times, from - to
-
-    public DailyHabitModel(String id, String title, String description, String icon, List<String> tags, Long time) {
+    public DailyHabitModel(String id, String title, String description, String timeRange, String icon, List<String> tags, Long time) {
         this.id = id;
         this.title = title;
         this.description = description;
+        this.timeRange = timeRange;
         this.icon = icon;
         this.tags = tags;
         this.time = time;
@@ -56,6 +56,14 @@ public class DailyHabitModel {
         this.icon = icon;
     }
 
+    public String getTimeRange() {
+        return timeRange;
+    }
+
+    public void setTimeRange(String timeRange) {
+        this.timeRange = timeRange;
+    }
+
     public List<String> getTags() {
         return tags;
     }
@@ -74,10 +82,15 @@ public class DailyHabitModel {
 
     public static DailyHabitModel from(HabitModel habitModel, long time) {
 
+        String timeRange = habitModel.getSchedule().getFrom().toString()
+                + " - "
+                + habitModel.getSchedule().getTo().toString();
+
         return new DailyHabitModel(
                 habitModel.getId(),
                 habitModel.getTitle(),
                 habitModel.getDescription(),
+                timeRange,
                 habitModel.getIcon(),
                 habitModel.getTags(),
                 time

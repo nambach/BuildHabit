@@ -39,6 +39,17 @@ public class JsonUtils {
         }
     }
 
+    public static String getValue(String jsonObject, String key) {
+        try {
+            JsonObject object = Json.parse(jsonObject).asObject();
+            JsonValue value = object.get(key);
+
+            return MinimalJsonTypeConverter.convertToString(value);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     public static Collection<String> getAllProperties(String object) {
         Collection<String> properties = new LinkedList<>();
         try {

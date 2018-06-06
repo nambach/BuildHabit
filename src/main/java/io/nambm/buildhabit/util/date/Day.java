@@ -1,5 +1,7 @@
 package io.nambm.buildhabit.util.date;
 
+import io.nambm.buildhabit.model.habit.Schedule;
+
 public class Day {
     public final String day;
     public final int date;
@@ -10,6 +12,38 @@ public class Day {
     public final int second;
     public final long time;
 
+    public Day(String day) {
+        this.day = day;
+        this.date = 0;
+        this.month = 0;
+        this.year = 0;
+        this.hour = 0;
+        this.minute = 0;
+        this.second = 0;
+        this.time = 0;
+    }
+
+    public Day(int date) {
+        this.day = "";
+        this.date = date;
+        this.month = 0;
+        this.year = 0;
+        this.hour = 0;
+        this.minute = 0;
+        this.second = 0;
+        this.time = 0;
+    }
+
+    public Day(int date, int month) {
+        this.day = "";
+        this.date = date;
+        this.month = month;
+        this.year = 0;
+        this.hour = 0;
+        this.minute = 0;
+        this.second = 0;
+        this.time = 0;
+    }
 
     public Day(String day, int date, int month, int year, int hour, int minute, int second, long time) {
         this.day = day;
@@ -33,5 +67,17 @@ public class Day {
                 ", minute=" + minute +
                 ", second=" + second +
                 '}';
+    }
+
+    public boolean equals(Day day, String bound) {
+        if (Schedule.Repetition.MONTHLY.equals(bound)) {
+            return this.date == day.date;
+        }
+
+        if (Schedule.Repetition.YEARLY.equals(bound)) {
+            return this.date == day.date && this.month == day.month;
+        }
+
+        return false;
     }
 }

@@ -1,5 +1,6 @@
 package io.nambm.buildhabit.model.habit;
 
+import com.eclipsesource.json.Json;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import io.nambm.buildhabit.util.JsonUtils;
@@ -22,15 +23,17 @@ public class Schedule {
     private DailyTimePoint to;
     private String repetition;
     private List<Day> times;
+    private List<Long> reminders;
 
     public Schedule() {
     }
 
-    public Schedule(DailyTimePoint from, DailyTimePoint to, String repetition, List<Day> times) {
+    private Schedule(DailyTimePoint from, DailyTimePoint to, String repetition, List<Day> times, List<Long> reminders) {
         this.from = from;
         this.to = to;
         this.repetition = repetition;
         this.times = times;
+        this.reminders = reminders;
     }
 
     public String getRepetition() {
@@ -65,6 +68,14 @@ public class Schedule {
         this.to = to;
     }
 
+    public List<Long> getReminders() {
+        return reminders;
+    }
+
+    public void setReminders(List<Long> reminders) {
+        this.reminders = reminders;
+    }
+
     public static Schedule from(String json) {
         try {
             Gson gson = new Gson();
@@ -73,6 +84,7 @@ public class Schedule {
             DailyTimePoint to = gson.fromJson(JsonUtils.getValue(json, "to"), DailyTimePoint.class);
             String repetition = JsonUtils.getValue(json, "repetition");
             String times = JsonUtils.getValue(json, "times");
+            List<Long> reminders = JsonUtils.getArray(JsonUtils.getValue(json, "reminders"), Long.class);
 
             List<Day> days = null;
 
@@ -103,7 +115,7 @@ public class Schedule {
                         .collect(Collectors.toList());
             }
 
-            return new Schedule(from, to, repetition, days);
+            return new Schedule(from, to, repetition, days, reminders);
         } catch (JsonSyntaxException e) {
             return null;
         }
@@ -124,6 +136,8 @@ public class Schedule {
             map.put("times", times.stream().map(day ->
                     String.format("%02d%02d", day.date, day.month)).collect(Collectors.toList()));
         }
+
+        map.put("reminders", reminders);
 
         return new Gson().toJson(map);
     }

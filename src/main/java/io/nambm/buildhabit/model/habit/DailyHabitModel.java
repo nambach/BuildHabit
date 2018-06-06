@@ -14,7 +14,9 @@ public class DailyHabitModel {
     private List<String> tags;
     private Long time;
 
-    public DailyHabitModel(String id, String title, String description, String timeRange, String icon, List<String> tags, Long time) {
+    private boolean isShown;
+
+    public DailyHabitModel(String id, String title, String description, String timeRange, String icon, List<String> tags, Long time, boolean isShown) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -22,6 +24,7 @@ public class DailyHabitModel {
         this.icon = icon;
         this.tags = tags;
         this.time = time;
+        this.isShown = isShown;
     }
 
     public String getId() {
@@ -80,7 +83,15 @@ public class DailyHabitModel {
         this.time = time;
     }
 
-    public static DailyHabitModel from(HabitModel habitModel, long time) {
+    public boolean isShown() {
+        return isShown;
+    }
+
+    public void setShown(boolean shown) {
+        isShown = shown;
+    }
+
+    public static DailyHabitModel from(HabitModel habitModel, long time, boolean isShown) {
 
         String timeRange = habitModel.getSchedule().getFrom().toString()
                 + " - "
@@ -93,7 +104,8 @@ public class DailyHabitModel {
                 timeRange,
                 habitModel.getIcon(),
                 habitModel.getTags(),
-                time
+                time,
+                isShown
         );
     }
 }

@@ -16,7 +16,6 @@ public class HabitModel {
     private String icon;
 
     private Schedule schedule;
-    private List<Long> reminders;
     private List<String> tags;
     private List<Long> logs;
 
@@ -74,14 +73,6 @@ public class HabitModel {
         this.schedule = schedule;
     }
 
-    public List<Long> getReminders() {
-        return reminders;
-    }
-
-    public void setReminders(List<Long> reminders) {
-        this.reminders = reminders;
-    }
-
     public List<String> getTags() {
         return tags;
     }
@@ -123,7 +114,6 @@ public class HabitModel {
         entity.setContent(JsonUtils.toJson(Arrays.asList("title", "description", "icon"),
                 Arrays.asList(title, description, icon)));
         entity.setSchedules(schedule.toJson());
-        entity.setReminders(JsonUtils.toJson(reminders));
         entity.setLogs(JsonUtils.toJson(logs));
         entity.setTags(JsonUtils.toJson(tags));
         entity.setTimeRange(JsonUtils.toJson(Arrays.asList("startTime", "endTime"),

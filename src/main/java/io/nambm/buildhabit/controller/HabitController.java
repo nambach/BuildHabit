@@ -38,20 +38,18 @@ public interface HabitController {
     @ApiOperation("Load all habits in current week")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
-            @ApiImplicitParam(name = "equalCondition", defaultValue = "{}", value = "Conditions"),
             @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "25200000")
     })
     @ApiResponse(code = 200, message = "Found")
-    ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(String username, String equalCondition, int offsetMillis);
+    ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(String username, int offsetMillis);
 
     @ApiOperation("Load all habits in current week")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
-            @ApiImplicitParam(name = "equalCondition", defaultValue = "{}", value = "Conditions"),
-            @ApiImplicitParam(name = "from", defaultValue = "01/01/2018", value = "From date (dd/mm/yyyy)"),
+            @ApiImplicitParam(name = "from", defaultValue = "01/06/2018", value = "From date (dd/mm/yyyy)"),
             @ApiImplicitParam(name = "to", defaultValue = "30/06/2018", value = "From date (dd/mm/yyyy)"),
             @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "25200000")
     })
     @ApiResponse(code = 200, message = "Found")
-    ResponseEntity<List<DailyHabit>> getHabits(String username, String equalCondition, String from, String to, int offsetMillis);
+    ResponseEntity<List<DailyHabit>> getHabits(String username, String from, String to, int offsetMillis);
 }

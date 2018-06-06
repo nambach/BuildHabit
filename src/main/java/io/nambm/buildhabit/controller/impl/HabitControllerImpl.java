@@ -59,14 +59,12 @@ public class HabitControllerImpl implements HabitController {
 
     @GetMapping("/habit/this-week")
     public ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(@RequestParam String username,
-                                                                 @RequestParam String equalCondition,
                                                                  @RequestParam int offsetMillis) {
-        return habitService.getThisWeekHabits(username, equalCondition, offsetMillis);
+        return habitService.getThisWeekHabits(username, "{}", offsetMillis);
     }
 
     @GetMapping("/habit/by-time")
     public ResponseEntity<List<DailyHabit>> getHabits(@RequestParam String username,
-                                                      @RequestParam String equalCondition,
                                                       @RequestParam String from,
                                                       @RequestParam String to,
                                                       @RequestParam int offsetMillis) {
@@ -76,7 +74,7 @@ public class HabitControllerImpl implements HabitController {
         if (fromTime == 0 || toTime == 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
-            return habitService.getHabitsByDateRange(fromTime, toTime, username, equalCondition, offsetMillis);
+            return habitService.getHabitsByDateRange(fromTime, toTime, username, "{}", offsetMillis);
         }
     }
 }

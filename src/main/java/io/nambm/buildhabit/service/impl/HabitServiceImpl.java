@@ -119,6 +119,9 @@ public class HabitServiceImpl implements HabitService {
                         repetition.equals(habit.getSchedule().getRepetition()))
                 .collect(Collectors.toList());
 
+        // Prepare storage for habits that have reminder margins
+        List<DailyHabitModel> unlistedHabits = new LinkedList<>();
+
         for (Day day : days) {
             for (HabitModel habit : weeklyHabits) {
                 for (Day time : habit.getSchedule().getTimes()) {
@@ -128,15 +131,28 @@ public class HabitServiceImpl implements HabitService {
                         long timeToAlarm = getAlarmTimeMillis(day, habit.getSchedule().getFrom(), calendar);
 
                         classifiedHabits.get(day).getHabits()
-                                .add(DailyHabitModel.from(habit, timeToAlarm));
+                                .add(DailyHabitModel.from(habit, timeToAlarm, true));
+
+                        // Add the unlisted habits
+                        for (Long reminderMargin : habit.getSchedule().getReminders()) {
+                            unlistedHabits.add(DailyHabitModel.from(habit, timeToAlarm - reminderMargin, false));
+                        }
                     }
+                }
+            }
+        }
+
+        // RE-classify the habits with reminder margins
+        for (Day day : days) {
+            for (DailyHabitModel habit : unlistedHabits) {
+                if (day.include(habit.getTime(), calendar)) {
+                    classifiedHabits.get(day).getHabits().add(habit);
                 }
             }
         }
     }
 
     private long getAlarmTimeMillis(Day day, DailyTimePoint timePoint, Calendar calendar) {
-        // Todo: Apply the reminder margin
         return TimeUtils.combineTimeMillis(day.time, timePoint.getHour(), timePoint.getMinute(), calendar);
     }
 }

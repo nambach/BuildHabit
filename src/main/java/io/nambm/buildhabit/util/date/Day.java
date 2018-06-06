@@ -88,6 +88,24 @@ public class Day {
         return false;
     }
 
+    public boolean include(long time, Calendar calendar) {
+        calendar.setTimeInMillis(this.time);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startTime = calendar.getTimeInMillis();
+
+        calendar.setTimeInMillis(this.time);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        long endTime = calendar.getTimeInMillis();
+
+        return startTime <= time && time <= endTime;
+    }
+
     public static Day from(long time, int offsetMillis) {
         Calendar calendar = Calendar.getInstance();
         calendar.getTimeZone().setRawOffset(offsetMillis);

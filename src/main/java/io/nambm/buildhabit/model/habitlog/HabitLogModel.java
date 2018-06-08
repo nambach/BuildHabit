@@ -55,15 +55,9 @@ public class HabitLogModel {
         HabitLogEntity entity = new HabitLogEntity();
         Gson gson = new Gson();
 
-        String rowKey = getRowKey(
-                this.monthInfo.month,
-                this.monthInfo.year,
-                this.habitId
-        );
-
         // Set entity ID
-        entity.setPartitionKey(username);
-        entity.setRowKey(rowKey);
+        entity.setPartitionKey(getPartitionKey(this));
+        entity.setRowKey(getRowKey(this));
 
         // Set main info
         entity.setTimes(gson.toJson(times));

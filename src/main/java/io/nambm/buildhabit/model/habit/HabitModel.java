@@ -108,8 +108,8 @@ public class HabitModel {
     public HabitEntity toEntity() {
         HabitEntity entity = new HabitEntity();
 
-        entity.setPartitionKey(this.username);
-        entity.setRowKey(id);
+        entity.setPartitionKey(getPartitionKey(this));
+        entity.setRowKey(getRowKey(this));
 
         entity.setContent(JsonUtils.toJson(Arrays.asList("title", "description", "icon"),
                 Arrays.asList(title, description, icon)));
@@ -120,5 +120,13 @@ public class HabitModel {
                 Arrays.asList(startTime, endTime)));
 
         return entity;
+    }
+
+    public static String getPartitionKey(HabitModel model) {
+        return model.username;
+    }
+
+    public static String getRowKey(HabitModel model) {
+        return model.id;
     }
 }

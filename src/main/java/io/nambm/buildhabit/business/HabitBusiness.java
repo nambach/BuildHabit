@@ -10,7 +10,9 @@ public interface HabitBusiness {
 
     boolean update(HabitModel model);
 
-    boolean remove(HabitModel model);
+    boolean remove(String username, String id);
+
+    HabitModel get(String username, String id);
 
     List<HabitModel> getAllHabits(String username, String equalConditions);
 }

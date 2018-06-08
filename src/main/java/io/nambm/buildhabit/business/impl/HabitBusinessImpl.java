@@ -28,12 +28,23 @@ public class HabitBusinessImpl implements HabitBusiness {
 
     @Override
     public boolean update(HabitModel model) {
-        return false;
+        return habitTableService.update(model.toEntity());
     }
 
     @Override
-    public boolean remove(HabitModel model) {
-        return false;
+    public boolean remove(String username, String id) {
+        HabitEntity entity = habitTableService.get(username, id);
+        return habitTableService.remove(entity);
+    }
+
+    @Override
+    public HabitModel get(String username, String id) {
+        HabitEntity entity = habitTableService.get(username, id);
+        if (entity != null) {
+            return entity.toModel();
+        } else {
+            return null;
+        }
     }
 
     @Override

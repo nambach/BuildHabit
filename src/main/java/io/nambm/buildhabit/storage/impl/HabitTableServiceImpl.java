@@ -17,12 +17,17 @@ public class HabitTableServiceImpl extends TableServiceImpl<HabitEntity> impleme
 
     @Override
     public boolean update(HabitEntity entity) {
-        return insertOrMerge(entity);
+        return insertOrReplace(entity);
     }
 
     @Override
     public boolean remove(HabitEntity entity) {
         return delete(entity) != null;
+    }
+
+    @Override
+    public HabitEntity get(String partitionKey, String rowKey) {
+        return this.getEntity(partitionKey, rowKey);
     }
 
     @Override

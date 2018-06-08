@@ -22,5 +22,7 @@ public interface TableService<T> {
 
     List<T> searchAll(String partitionKey, String equalConditions);
 
+    List<T> searchAll(String partitionKey, String equalConditions, String queryFilter);
+
     List<T> searchTop(int count, String partitionKey, String equalConditions);
 }

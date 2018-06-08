@@ -21,8 +21,8 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
 
     private static final String AZURE_ACC_NAME = "AZURE_STORAGE_ACCOUNT_NAME";
     private static final String AZURE_ACC_KEY = "AZURE_STORAGE_ACCOUNT_KEY";
-    private static final String PARTITION_KEY = "PartitionKey";
-    private static final String ROW_KEY = "RowKey";
+    public static final String PARTITION_KEY = "PartitionKey";
+    public static final String ROW_KEY = "RowKey";
     private static final int MAX_QUERY_COUNT = 1000;
 
     private CloudTable cloudTable;
@@ -240,6 +240,46 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
 
             // Specify a combo query
             TableQuery<T> query = getQuery(partitionKey, equalConditions);
+
+            // Collect entities.
+            List<T> list = new ArrayList<>();
+            ResultContinuation token = null;
+
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(query, token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
+            return list;
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<T> searchAll(String partitionKey, String equalConditions, String queryFilter) {
+        try {
+            String filter = null;
+
+            // Generate and combine filter
+            String partitionAndEqualFilter = getQueryFilter(partitionKey, equalConditions);
+            if (partitionAndEqualFilter != null && queryFilter != null) {
+                filter = TableQuery.combineFilters(
+                        partitionAndEqualFilter, TableQuery.Operators.AND, queryFilter);
+            } else if (queryFilter != null) {
+                filter = queryFilter;
+            } else if (partitionAndEqualFilter != null) {
+                filter = partitionAndEqualFilter;
+            }
+
+            // Specify a combo query
+            TableQuery<T> query = TableQuery.from(entityClass);
+            if (filter != null) {
+                query.where(filter);
+            }
 
             // Collect entities.
             List<T> list = new ArrayList<>();

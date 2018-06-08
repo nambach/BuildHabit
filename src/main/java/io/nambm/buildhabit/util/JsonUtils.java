@@ -181,6 +181,7 @@ public class JsonUtils {
         return builder.toString();
     }
 
+    @Deprecated
     public static <T> T fromJson(String json, Class<T> clazz) {
         if (NULL.equals(json) || json == null) {
             return null;

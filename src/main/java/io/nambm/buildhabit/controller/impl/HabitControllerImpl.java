@@ -4,6 +4,7 @@ import io.nambm.buildhabit.controller.HabitController;
 import io.nambm.buildhabit.model.habit.DailyHabit;
 import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habit.Schedule;
+import io.nambm.buildhabit.service.HabitLogService;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.JsonUtils;
 import io.nambm.buildhabit.util.TimeUtils;
@@ -12,17 +13,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
 
 @RestController
 public class HabitControllerImpl implements HabitController {
 
     private final HabitService habitService;
+    private final HabitLogService habitLogService;
 
     @Autowired
-    public HabitControllerImpl(HabitService habitService) {
+    public HabitControllerImpl(HabitService habitService, HabitLogService habitLogService) {
         this.habitService = habitService;
+        this.habitLogService = habitLogService;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -32,11 +34,11 @@ public class HabitControllerImpl implements HabitController {
                               @RequestParam String description,
                               @RequestParam String schedule,
                               @RequestParam String tags,
-                              @RequestParam String startTime,
-                              @RequestParam String endTime) {
+                              @RequestParam long startTime,
+                              @RequestParam long endTime) {
         HabitModel habitModel = new HabitModel();
         habitModel.setUsername(username);
-        habitModel.setId(new Date().getTime() + "");
+        habitModel.setId(username + "_" + System.currentTimeMillis());
 
         habitModel.setTitle(title);
         habitModel.setDescription(description);
@@ -44,10 +46,19 @@ public class HabitControllerImpl implements HabitController {
         habitModel.setSchedule(Schedule.from(schedule));
         habitModel.setTags(JsonUtils.getArray(tags, String.class));
 
-        habitModel.setStartTime(Long.parseLong(startTime));
-        habitModel.setEndTime(Long.parseLong(endTime));
+        habitModel.setStartTime(startTime);
+        habitModel.setEndTime(endTime);
 
         HttpStatus status = habitService.insert(habitModel);
+        return new ResponseEntity(status);
+    }
+
+    @PutMapping("/habit/check")
+    public ResponseEntity checkDone(String username, String habitId, long time, int offsetMillis) {
+        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis)
+                ? HttpStatus.OK
+                : HttpStatus.NOT_FOUND;
+
         return new ResponseEntity(status);
     }
 

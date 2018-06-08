@@ -11,6 +11,8 @@ public interface HabitTableService {
 
     boolean remove(HabitEntity entity);
 
+    HabitEntity get(String partitionKey, String rowKey);
+
     List<HabitEntity> getAllHabits(String username, String equalConditions);
 
 }

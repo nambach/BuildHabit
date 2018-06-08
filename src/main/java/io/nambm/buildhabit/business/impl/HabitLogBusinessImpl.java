@@ -34,6 +34,17 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
     }
 
     @Override
+    public boolean remove(HabitLogModel model) {
+
+        HabitLogEntity entity = tableService.get(HabitLogModel.getPartitionKey(model), HabitLogModel.getRowKey(model));
+        if (entity != null) {
+            return tableService.remove(entity);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public HabitLogModel get(String username, String habitId, int month, int year) {
         String rowKey = HabitLogModel.getRowKey(month, year, habitId);
         HabitLogEntity entity = tableService.get(username, rowKey);

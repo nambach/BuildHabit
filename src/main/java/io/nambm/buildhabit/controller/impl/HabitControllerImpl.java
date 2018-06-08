@@ -62,10 +62,18 @@ public class HabitControllerImpl implements HabitController {
         return new ResponseEntity(status);
     }
 
+    @PutMapping("/habit/un-check")
+    public ResponseEntity undoCheckDone(String username, String habitId, long time, int offsetMillis) {
+        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis)
+                ? HttpStatus.OK
+                : HttpStatus.NOT_FOUND;
+
+        return new ResponseEntity(status);
+    }
+
     @GetMapping("/habit/all")
-    public ResponseEntity<List<HabitModel>> getAllHabits(@RequestParam String username,
-                                                         @RequestParam String equalCondition) {
-        return habitService.getAllHabits(username, equalCondition);
+    public ResponseEntity<List<HabitModel>> getAllHabits(@RequestParam String username) {
+        return habitService.getAllHabits(username, "{}");
     }
 
     @GetMapping("/habit/this-week")

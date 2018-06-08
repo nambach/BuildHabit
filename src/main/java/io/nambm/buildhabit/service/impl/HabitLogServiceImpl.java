@@ -41,4 +41,25 @@ public class HabitLogServiceImpl implements HabitLogService {
         }
         return result;
     }
+
+    @Override
+    public boolean deleteLog(String username, String habitId, long finishTime, int offsetMillis) {
+        Day day = Day.from(finishTime, offsetMillis);
+        HabitLogModel logModel = habitLogBusiness.get(username, habitId, day.month, day.year);
+
+        boolean result;
+        if (logModel != null) {
+            logModel.getTimes().remove(finishTime);
+
+            if (logModel.getTimes().isEmpty()) {
+                habitLogBusiness.remove(logModel);
+                result = true;
+            } else {
+                result = habitLogBusiness.update(logModel);
+            }
+        } else {
+            result = false;
+        }
+        return result;
+    }
 }

@@ -11,6 +11,8 @@ public interface HabitLogBusiness {
 
     boolean update(HabitLogModel model);
 
+    boolean remove(HabitLogModel model);
+
     HabitLogModel get(String username, String habitId, int month, int year);
 
     List<HabitLogModel> getAllHabitLogs(String username, String habitId, Day fromMonth, Day toMonth);

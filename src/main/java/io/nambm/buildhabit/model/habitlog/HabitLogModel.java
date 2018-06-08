@@ -79,4 +79,12 @@ public class HabitLogModel {
     public static String getRowKey(int month, int year, String habitId) {
         return habitId + "_" + String.format("%04d%02d", year, month);
     }
+
+    public static String getRowKey(HabitLogModel model) {
+        return model.habitId + "_" + String.format("%04d%02d", model.monthInfo.year, model.monthInfo.month);
+    }
+
+    public static String getPartitionKey(HabitLogModel model) {
+        return model.getUsername();
+    }
 }

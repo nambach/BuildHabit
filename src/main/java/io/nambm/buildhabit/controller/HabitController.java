@@ -27,15 +27,36 @@ public interface HabitController {
     ResponseEntity add(String username, String title, String description,
                        String schedule, String tags, long startTime, long endTime);
 
-    ResponseEntity checkDone(String username, String habitId, long time, int offsetMillis);
-
-    @ApiOperation("Load all habits")
+    @ApiOperation("Check done habit")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
-            @ApiImplicitParam(name = "equalCondition", defaultValue = "{}", value = "Conditions")
+            @ApiImplicitParam(name = "habitId", defaultValue = "", value = "Habit ID"),
+            @ApiImplicitParam(name = "time", defaultValue = "0", value = "Finish time (millisecond)"),
+            @ApiImplicitParam(name = "offsetMillis", defaultValue = "25200000", value = "Timezone Offset In Millisecond")
     })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Habit log recorded"),
+            @ApiResponse(code = 404, message = "Habit not found")
+    })
+    ResponseEntity checkDone(String username, String habitId, long time, int offsetMillis);
+
+    @ApiOperation("Undo check done habit")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
+            @ApiImplicitParam(name = "habitId", defaultValue = "", value = "Habit ID"),
+            @ApiImplicitParam(name = "time", defaultValue = "0", value = "Finish time (millisecond)"),
+            @ApiImplicitParam(name = "offsetMillis", defaultValue = "25200000", value = "Timezone Offset In Millisecond")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Habit log recorded"),
+            @ApiResponse(code = 404, message = "Habit not found")
+    })
+    ResponseEntity undoCheckDone(String username, String habitId, long time, int offsetMillis);
+
+    @ApiOperation("Load all habits")
+    @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username")
     @ApiResponse(code = 200, message = "Found")
-    ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalCondition);
+    ResponseEntity<List<HabitModel>> getAllHabits(String username);
 
     @ApiOperation("Load all habits in current week")
     @ApiImplicitParams({

@@ -82,7 +82,7 @@ public class HabitControllerImpl implements HabitController {
         long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.DD_MM_YYYY);
         long toTime = TimeUtils.getTimeMillis(to, TimeUtils.DD_MM_YYYY);
 
-        if (fromTime == 0 || toTime == 0) {
+        if (fromTime <= 0 || toTime <= 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
             return habitService.getHabitsByDateRange(fromTime, toTime, username, "{}", offsetMillis);

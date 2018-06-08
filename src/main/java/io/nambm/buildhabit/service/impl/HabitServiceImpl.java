@@ -135,6 +135,7 @@ public class HabitServiceImpl implements HabitService {
 
                         // Add the unlisted habits
                         for (Long reminderMargin : habit.getSchedule().getReminders()) {
+                            if (reminderMargin <= 0) continue;
                             unlistedHabits.add(DailyHabitModel.from(habit, timeToAlarm - reminderMargin, false));
                         }
                     }

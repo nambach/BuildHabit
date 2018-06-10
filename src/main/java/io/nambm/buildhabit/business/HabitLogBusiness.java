@@ -4,6 +4,7 @@ import io.nambm.buildhabit.model.habitlog.HabitLogModel;
 import io.nambm.buildhabit.util.date.Day;
 
 import java.util.List;
+import java.util.Map;
 
 public interface HabitLogBusiness {
 
@@ -15,5 +16,7 @@ public interface HabitLogBusiness {
 
     HabitLogModel get(String username, String habitId, int month, int year);
 
-    List<HabitLogModel> getAllHabitLogs(String username, String habitId, Day fromMonth, Day toMonth);
+    List<HabitLogModel> getLogsById(String username, String habitId, Day fromMonth, Day toMonth);
+
+    Map<String, List<Long>> getAllLogs(String username, Day from, Day to);
 }

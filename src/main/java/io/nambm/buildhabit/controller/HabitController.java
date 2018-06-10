@@ -6,6 +6,7 @@ import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 @Api(description = "Habit API")
 public interface HabitController {

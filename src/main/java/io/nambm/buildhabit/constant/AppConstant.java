@@ -1,7 +1,5 @@
 package io.nambm.buildhabit.constant;
 
-import java.util.Map;
-
 public class AppConstant {
 
     public static final String MON = "mon";
@@ -11,6 +9,8 @@ public class AppConstant {
     public static final String FRI = "fri";
     public static final String SAT = "sat";
     public static final String SUN = "sun";
+
+    public static final long DAY_IN_MILLISECOND = 86400000L;
 
     public enum DAY_OF_WEEK {
         MON(0, "mon"), TUE(1, "tue"), WED(2, "wed"), THU(3, "thu"), FRI(4, "fri"), SAT(5, "sat"), SUN(6, "sun");

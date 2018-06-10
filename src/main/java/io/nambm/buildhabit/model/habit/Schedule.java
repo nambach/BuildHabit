@@ -100,7 +100,9 @@ public class Schedule {
                         .stream()
                         .map(s -> {
                             int date = Integer.parseInt(s);
-                            return new Day(date);
+                            Day d = new Day();
+                            d.date = date;
+                            return d;
                         })
                         .collect(Collectors.toList());
             } else if (Repetition.YEARLY.equals(repetition)) {
@@ -110,7 +112,10 @@ public class Schedule {
                         .map(s -> {
                             int date = Integer.parseInt(s.substring(0, 2));
                             int month = Integer.parseInt(s.substring(3));
-                            return new Day(date, month);
+                            Day d =  new Day();
+                            d.date = date;
+                            d.month = month;
+                            return d;
                         })
                         .collect(Collectors.toList());
             }

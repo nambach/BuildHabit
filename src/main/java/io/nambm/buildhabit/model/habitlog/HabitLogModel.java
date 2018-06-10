@@ -53,17 +53,16 @@ public class HabitLogModel {
 
     public HabitLogEntity toEntity() {
         HabitLogEntity entity = new HabitLogEntity();
-        Gson gson = new Gson();
 
         // Set entity ID
         entity.setPartitionKey(getPartitionKey(this));
         entity.setRowKey(getRowKey(this));
 
         // Set main info
-        entity.setTimes(gson.toJson(times));
+        entity.setTimes(new Gson().toJson(times));
 
         // Set additional info
-        entity.setMonthInfo(gson.toJson(monthInfo));
+        entity.setMonthInfo(getMonthInfo(monthInfo));
         entity.setHabitId(habitId);
         entity.setUsername(username);
 
@@ -71,14 +70,22 @@ public class HabitLogModel {
     }
 
     public static String getRowKey(int month, int year, String habitId) {
-        return habitId + "_" + String.format("%04d%02d", year, month);
+        return habitId + "_" + getMonthInfo(month, year);
     }
 
     public static String getRowKey(HabitLogModel model) {
-        return model.habitId + "_" + String.format("%04d%02d", model.monthInfo.year, model.monthInfo.month);
+        return model.habitId + "_" + getMonthInfo(model.monthInfo);
     }
 
     public static String getPartitionKey(HabitLogModel model) {
         return model.getUsername();
+    }
+
+    private static String getMonthInfo(int month, int year) {
+        return String.format("%04d-%02d", year, month);
+    }
+
+    public static String getMonthInfo(Day day) {
+        return String.format("%04d-%02d", day.year, day.month);
     }
 }

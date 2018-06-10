@@ -6,14 +6,14 @@ import io.nambm.buildhabit.util.TimeUtils;
 import java.util.Calendar;
 
 public class Day {
-    public final String day;
-    public final int date;
-    public final int month;
-    public final int year;
-    public final int hour;
-    public final int minute;
-    public final int second;
-    public final long time;
+    public String day;
+    public int date;
+    public int month;
+    public int year;
+    public int hour;
+    public int minute;
+    public int second;
+    public long time;
 
     public Day(String day) {
         this.day = day;
@@ -26,26 +26,7 @@ public class Day {
         this.time = 0;
     }
 
-    public Day(int date) {
-        this.day = "";
-        this.date = date;
-        this.month = 0;
-        this.year = 0;
-        this.hour = 0;
-        this.minute = 0;
-        this.second = 0;
-        this.time = 0;
-    }
-
-    public Day(int date, int month) {
-        this.day = "";
-        this.date = date;
-        this.month = month;
-        this.year = 0;
-        this.hour = 0;
-        this.minute = 0;
-        this.second = 0;
-        this.time = 0;
+    public Day() {
     }
 
     public Day(String day, int date, int month, int year, int hour, int minute, int second, long time) {

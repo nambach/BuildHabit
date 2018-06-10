@@ -27,7 +27,9 @@ public class HabitLogServiceImpl implements HabitLogService {
 
         boolean result;
         if (logModel != null) {
-            logModel.getTimes().add(finishTime);
+            if (logModel.getTimes().indexOf(finishTime) == -1) {
+                logModel.getTimes().add(finishTime);
+            }
 
             result = habitLogBusiness.update(logModel);
         } else {

@@ -10,7 +10,10 @@ import io.nambm.buildhabit.util.date.Day;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +58,7 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
     }
 
     @Override
-    public List<HabitLogModel> getAllHabitLogs(String username, String habitId, Day fromMonth, Day toMonth) {
+    public List<HabitLogModel> getLogsById(String username, String habitId, Day fromMonth, Day toMonth) {
 
         String fromRowKey = HabitLogModel.getRowKey(fromMonth.month, fromMonth.year, habitId);
         String toRowKey = HabitLogModel.getRowKey(toMonth.month, toMonth.year, habitId);
@@ -77,5 +80,47 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
                 .stream()
                 .map(HabitLogEntity::toModel)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String, List<Long>> getAllLogs(String username, Day from, Day to) {
+
+        String fromFilter = TableQuery.generateFilterCondition(
+                "MonthInfo",
+                TableQuery.QueryComparisons.GREATER_THAN_OR_EQUAL,
+                HabitLogModel.getMonthInfo(from)
+        );
+
+        String toFilter = TableQuery.generateFilterCondition(
+                "MonthInfo",
+                TableQuery.QueryComparisons.LESS_THAN_OR_EQUAL,
+                HabitLogModel.getMonthInfo(to)
+        );
+
+        String combined = TableQuery.combineFilters(
+                fromFilter,
+                TableQuery.Operators.AND,
+                toFilter
+        );
+
+        Map<String, List<HabitLogModel>> map = tableService.getAllHabitLogs(username, "{}", combined)
+                .stream()
+                .map(HabitLogEntity::toModel)
+                .collect(Collectors.groupingBy(HabitLogModel::getHabitId));
+
+        return convert(map);
+    }
+
+    private Map<String, List<Long>> convert(Map<String, List<HabitLogModel>> map) {
+        Map<String, List<Long>> result = new HashMap<>();
+
+        map.forEach((habitId, logs) -> {
+            List<Long> longs = new LinkedList<>();
+            logs.forEach(model -> longs.addAll(model.getTimes()));
+
+            result.put(habitId, longs);
+        });
+
+        return result;
     }
 }

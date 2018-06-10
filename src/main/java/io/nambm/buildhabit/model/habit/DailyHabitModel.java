@@ -15,6 +15,7 @@ public class DailyHabitModel {
     private Long time;
 
     private boolean isShown;
+    private boolean isDone = false;
 
     public DailyHabitModel(String id, String title, String description, String timeRange, String icon, List<String> tags, Long time, boolean isShown) {
         this.id = id;
@@ -89,6 +90,14 @@ public class DailyHabitModel {
 
     public void setShown(boolean shown) {
         isShown = shown;
+    }
+
+    public boolean isDone() {
+        return isDone;
+    }
+
+    public void setDone(boolean done) {
+        isDone = done;
     }
 
     public static DailyHabitModel from(HabitModel habitModel, long time, boolean isShown) {

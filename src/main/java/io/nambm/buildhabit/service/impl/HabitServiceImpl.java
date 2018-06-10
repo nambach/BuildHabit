@@ -1,7 +1,10 @@
 package io.nambm.buildhabit.service.impl;
 
 import io.nambm.buildhabit.business.HabitBusiness;
+import io.nambm.buildhabit.business.HabitLogBusiness;
+import io.nambm.buildhabit.constant.AppConstant;
 import io.nambm.buildhabit.model.habit.*;
+import io.nambm.buildhabit.model.habitlog.HabitLogModel;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.TimeUtils;
 import io.nambm.buildhabit.util.date.Day;
@@ -18,10 +21,12 @@ import java.util.stream.Collectors;
 public class HabitServiceImpl implements HabitService {
 
     private final HabitBusiness habitBusiness;
+    private final HabitLogBusiness habitLogBusiness;
 
     @Autowired
-    public HabitServiceImpl(HabitBusiness habitBusiness) {
+    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness) {
         this.habitBusiness = habitBusiness;
+        this.habitLogBusiness = habitLogBusiness;
     }
 
     @Override
@@ -101,11 +106,26 @@ public class HabitServiceImpl implements HabitService {
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toList());
 
+        // Get habit logs
+        Map<String, List<Long>> logsDict = habitLogBusiness.getAllLogs(username, days.get(0), days.get(days.size() - 1));
+
         // Sort habits by time
-        dailyHabits.forEach(dailyHabit ->
-                dailyHabit.getHabits()
-                        .sort(Comparator.comparingLong(DailyHabitModel::getTime))
-        );
+        dailyHabits.forEach(dailyHabit -> {
+            dailyHabit.getHabits()
+                    .sort(Comparator.comparingLong(DailyHabitModel::getTime));
+
+            // Check done according to habit logs
+            dailyHabit.getHabits().forEach(dailyHabitModel -> {
+                String habitId = dailyHabitModel.getId();
+                long time = dailyHabitModel.getTime();
+
+                if (logsDict.get(habitId) != null
+                        && logsDict.get(habitId).indexOf(time) != -1) {
+                    dailyHabitModel.setDone(true);
+                }
+            });
+        });
+
 
         return new ResponseEntity<>(dailyHabits, HttpStatus.OK);
     }
@@ -124,6 +144,11 @@ public class HabitServiceImpl implements HabitService {
 
         for (Day day : days) {
             for (HabitModel habit : weeklyHabits) {
+
+                if (isDue(habit, day)) {
+                    continue;
+                }
+
                 for (Day time : habit.getSchedule().getTimes()) {
                     if (time.equals(day, habit.getSchedule().getRepetition())) {
 
@@ -155,5 +180,18 @@ public class HabitServiceImpl implements HabitService {
 
     private long getAlarmTimeMillis(Day day, DailyTimePoint timePoint, Calendar calendar) {
         return TimeUtils.combineTimeMillis(day.time, timePoint.getHour(), timePoint.getMinute(), calendar);
+    }
+
+    /**
+     * Calculate if habit id due in the day
+     *
+     * @param habit
+     * @param day the day on which habit occurs
+     * @return
+     */
+    private boolean isDue(HabitModel habit, Day day) {
+        // if 'endTime' = -1 then ignore endTime
+        return day.time + AppConstant.DAY_IN_MILLISECOND - 1 < habit.getStartTime()
+                || (habit.getEndTime() != -1 && habit.getEndTime() < day.time);
     }
 }

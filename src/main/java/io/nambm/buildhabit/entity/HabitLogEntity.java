@@ -17,6 +17,8 @@ public class HabitLogEntity extends TableServiceEntity {
 
     private String times;
 
+    // MonthInfo = [year][-][month]
+    // Eg: 2010-01
     private String monthInfo;
     private String habitId;
     private String username;
@@ -62,10 +64,27 @@ public class HabitLogEntity extends TableServiceEntity {
         Gson gson = new Gson();
 
         model.setTimes(gson.fromJson(times, new TypeToken<List<Long>>(){}.getType()));
-        model.setMonthInfo(gson.fromJson(monthInfo, Day.class));
+        model.setMonthInfo(fromMonthInfo(monthInfo));
         model.setHabitId(habitId);
         model.setUsername(getUsername());
 
         return model;
+    }
+
+    private static Day fromMonthInfo(String monthInfo) {
+        int year = 0;
+        int month = 0;
+        try {
+            // Eg: monthInfo = '2010-01'
+            year = Integer.parseInt(monthInfo.substring(0, 4));
+            month = Integer.parseInt(monthInfo.substring(5));
+        } catch (NumberFormatException ignored) {
+        }
+
+        Day day = new Day();
+        day.year = year;
+        day.month = month;
+
+        return day;
     }
 }

@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.service.impl;
 
 import io.nambm.buildhabit.business.UserBusiness;
+import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.model.user.UserModel;
 import io.nambm.buildhabit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,5 +51,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseEntity<List<UserModel>> getAll(String equalConditions) {
         return new ResponseEntity<>(userBusiness.getAll(equalConditions), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<BootgridResponse<UserModel>> getPage(int rowCount, int currentPage) {
+        return new ResponseEntity<>(userBusiness.getPage(rowCount, currentPage), HttpStatus.OK);
     }
 }

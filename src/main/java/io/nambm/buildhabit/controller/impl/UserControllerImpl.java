@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.controller.impl;
 
 import io.nambm.buildhabit.controller.UserController;
+import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.model.user.UserModel;
 import io.nambm.buildhabit.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,5 +48,11 @@ public class UserControllerImpl implements UserController {
     @GetMapping("/user/all")
     public ResponseEntity<List<UserModel>> getAll(@RequestParam String equalConditions) {
         return userService.getAll(equalConditions);
+    }
+
+    @GetMapping("/user/page")
+    public ResponseEntity<BootgridResponse<UserModel>> getPage(@RequestParam int rowCount,
+                                                               @RequestParam int current) {
+        return userService.getPage(rowCount, current);
     }
 }

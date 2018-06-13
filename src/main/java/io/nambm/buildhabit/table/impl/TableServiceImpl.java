@@ -5,6 +5,7 @@ import com.microsoft.azure.storage.ResultContinuation;
 import com.microsoft.azure.storage.ResultSegment;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.*;
+import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.table.TableService;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.util.JsonUtils;
@@ -13,9 +14,7 @@ import io.nambm.buildhabit.util.StringUtils;
 import java.lang.reflect.ParameterizedType;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TableServiceImpl<T extends TableServiceEntity> implements TableService<T> {
 
@@ -300,6 +299,75 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
     }
 
     @Override
+    public BootgridResponse<T> searchPage(int rowCount, int currentPage, String partitionKey, String queryFilter) {
+        try {
+            String filter = null;
+
+            // Generate and combine filter
+            if (partitionKey != null && queryFilter != null) {
+                filter = TableQuery.combineFilters(
+                        partitionKey, TableQuery.Operators.AND, queryFilter);
+            } else if (queryFilter != null) {
+                filter = queryFilter;
+            } else if (partitionKey != null) {
+                filter = partitionKey;
+            }
+
+            // Specify a combo query
+            TableQuery<T> query = TableQuery.from(entityClass);
+            if (filter != null) {
+                query.where(filter);
+            }
+
+            // Collect entities.
+            List<T> list = new ArrayList<>();
+            ResultContinuation token = null;
+
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(query, token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
+            // Extract entities by pages
+            List<T> rows = new LinkedList<>();
+            int startIndex = (currentPage - 1) * rowCount;
+            int endIndex = currentPage * rowCount - 1;
+
+            if (startIndex > list.size() - 1) {
+                // last index = 5
+                int lastPage = list.size() / rowCount;
+                if (list.size() % rowCount == 0) {
+                    lastPage--;
+                }
+
+                startIndex = lastPage * rowCount;
+
+                for (int i = startIndex; i < list.size(); i++) {
+                    rows.add(list.get(i));
+                }
+
+                // Update the page number (last page is calculated in programming index)
+                currentPage = lastPage + 1;
+            } else if (endIndex > list.size() - 1) {
+                for (int i = startIndex; i < list.size(); i++) {
+                    rows.add(list.get(i));
+                }
+            } else {
+                for (int i = startIndex; i <= endIndex; i++) {
+                    rows.add(list.get(i));
+                }
+            }
+
+            return new BootgridResponse<>(currentPage, rowCount, list.size(), rows);
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return new BootgridResponse<>(0, 0, 0, Collections.emptyList());
+        }
+    }
+
+    @Override
     public List<T> searchTop(int count, String partitionKey, String equalConditions) {
         List<T> list = new ArrayList<>();
 
@@ -413,5 +481,29 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
         }
 
         return comboFilter;
+    }
+
+    @Override
+    public int count() {
+        try {
+            String column[] = {PARTITION_KEY};
+            TableQuery<T> query = TableQuery.from(entityClass)
+                    .select(column);
+
+            ResultContinuation token = null;
+            List<T> list = new ArrayList<>();
+
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(query, token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
+            return list.size();
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return 0;
+        }
     }
 }

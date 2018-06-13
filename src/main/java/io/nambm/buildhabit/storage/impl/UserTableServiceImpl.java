@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.storage.impl;
 
 import io.nambm.buildhabit.entity.UserEntity;
+import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.storage.UserTableService;
 import io.nambm.buildhabit.table.impl.TableServiceImpl;
 import org.springframework.stereotype.Service;
@@ -32,5 +33,10 @@ public class UserTableServiceImpl extends TableServiceImpl<UserEntity> implement
     @Override
     public List<UserEntity> getAll(String equalConditions) {
         return searchAll(null, equalConditions);
+    }
+
+    @Override
+    public BootgridResponse<UserEntity> getPage(int rowCount, int currentPage, String partitionKey, String queryFilter) {
+        return searchPage(rowCount, currentPage, partitionKey, queryFilter);
     }
 }

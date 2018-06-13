@@ -1,5 +1,6 @@
 package io.nambm.buildhabit.controller;
 
+import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.model.user.UserModel;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
@@ -31,4 +32,12 @@ public interface UserController {
     @ApiImplicitParam(name = "equalConditions", defaultValue = "{\"PartitionKey\" : null}", value = "Equal Search Conditions (json)")
     @ApiResponse(code = 200, message = "Found")
     ResponseEntity<List<UserModel>> getAll(String equalConditions);
+
+    @ApiOperation("Load users pagine")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "rowCount", defaultValue = "5", value = "Row count"),
+            @ApiImplicitParam(name = "current", value = "Current page", defaultValue = "1")
+    })
+    @ApiResponse(code = 200, message = "Found")
+    ResponseEntity<BootgridResponse<UserModel>> getPage(int rowCount, int current);
 }

@@ -2,6 +2,7 @@ package io.nambm.buildhabit.business.impl;
 
 import io.nambm.buildhabit.business.UserBusiness;
 import io.nambm.buildhabit.entity.UserEntity;
+import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.model.user.UserModel;
 import io.nambm.buildhabit.storage.UserTableService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,5 +57,18 @@ public class UserBusinessImpl implements UserBusiness {
         return userTableService.getAll(equalConditions).stream()
                 .map(UserEntity::toModel)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public BootgridResponse<UserModel> getPage(int rowCount, int currentPage) {
+        BootgridResponse<UserEntity> entities = userTableService.getPage(rowCount, currentPage, null, null);
+        BootgridResponse<UserModel> models = new BootgridResponse<>(
+                entities.getCurrent(),
+                entities.getRowCount(),
+                entities.getTotal(),
+                entities.getRows().stream().map(UserEntity::toModel).collect(Collectors.toList())
+        );
+
+        return models;
     }
 }

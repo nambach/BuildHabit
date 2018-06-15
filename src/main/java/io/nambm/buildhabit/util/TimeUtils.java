@@ -12,6 +12,7 @@ public class TimeUtils {
 
     public static final List<String> DAY_OF_WEEK = Arrays.asList("mon", "tue", "wed", "thu", "fri", "sat", "sun");
     public static final String DD_MM_YYYY = "dd/MM/yyyy";
+    public static final String MM_DD_YYYY = "MM/dd/yyyy";
 
     public static int getCalendarDayOfWeek(String dayOfWeek) {
         switch (dayOfWeek.toLowerCase()) {
@@ -146,6 +147,15 @@ public class TimeUtils {
             } catch (ParseException ignored) {
             }
         }
+
+        if (MM_DD_YYYY.equals(timeUtilsPattern)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(timeUtilsPattern);
+            try {
+                return dateFormat.parse(time).getTime();
+            } catch (ParseException ignored) {
+            }
+        }
+
         return 0;
     }
 }

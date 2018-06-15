@@ -87,8 +87,8 @@ public class HabitControllerImpl implements HabitController {
                                                       @RequestParam String from,
                                                       @RequestParam String to,
                                                       @RequestParam int offsetMillis) {
-        long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.DD_MM_YYYY);
-        long toTime = TimeUtils.getTimeMillis(to, TimeUtils.DD_MM_YYYY);
+        long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.MM_DD_YYYY);
+        long toTime = TimeUtils.getTimeMillis(to, TimeUtils.MM_DD_YYYY);
 
         if (fromTime <= 0 || toTime <= 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

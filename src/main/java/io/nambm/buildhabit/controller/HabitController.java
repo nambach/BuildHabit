@@ -68,8 +68,8 @@ public interface HabitController {
     @ApiOperation("Load all habits in current week")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
-            @ApiImplicitParam(name = "from", defaultValue = "01/06/2018", value = "From date (dd/mm/yyyy)"),
-            @ApiImplicitParam(name = "to", defaultValue = "30/06/2018", value = "From date (dd/mm/yyyy)"),
+            @ApiImplicitParam(name = "from", defaultValue = "06/01/2018", value = "From date (mm/dd/yyyy)"),
+            @ApiImplicitParam(name = "to", defaultValue = "06/30/2018", value = "From date (mm/dd/yyyy)"),
             @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "25200000")
     })
     @ApiResponse(code = 200, message = "Found")

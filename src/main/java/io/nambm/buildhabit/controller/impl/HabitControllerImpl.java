@@ -8,6 +8,8 @@ import io.nambm.buildhabit.service.HabitLogService;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.JsonUtils;
 import io.nambm.buildhabit.util.TimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -87,6 +89,9 @@ public class HabitControllerImpl implements HabitController {
                                                       @RequestParam String from,
                                                       @RequestParam String to,
                                                       @RequestParam int offsetMillis) {
+        Logger logger = LoggerFactory.getLogger(HabitControllerImpl.class);
+        logger.info("username" + ":" + username);
+
         long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.MM_DD_YYYY);
         long toTime = TimeUtils.getTimeMillis(to, TimeUtils.MM_DD_YYYY);
 

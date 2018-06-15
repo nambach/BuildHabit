@@ -32,22 +32,22 @@ public class HabitControllerImpl implements HabitController {
     public ResponseEntity add(@RequestParam String username,
                               @RequestParam String title,
                               @RequestParam String description,
+                              @RequestParam String icon,
                               @RequestParam String schedule,
-                              @RequestParam String tags,
-                              @RequestParam long startTime,
-                              @RequestParam long endTime) {
+                              @RequestParam String tags) {
         HabitModel habitModel = new HabitModel();
         habitModel.setUsername(username);
         habitModel.setId(username + "_" + System.currentTimeMillis());
 
         habitModel.setTitle(title);
         habitModel.setDescription(description);
+        habitModel.setIcon(icon);
 
         habitModel.setSchedule(Schedule.from(schedule));
         habitModel.setTags(JsonUtils.getArray(tags, String.class));
 
-        habitModel.setStartTime(startTime);
-        habitModel.setEndTime(endTime);
+        habitModel.setStartTime(System.currentTimeMillis());
+        habitModel.setEndTime(-1L);
 
         HttpStatus status = habitService.insert(habitModel);
         return new ResponseEntity(status);

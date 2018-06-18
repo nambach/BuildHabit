@@ -20,11 +20,22 @@ public interface HabitController {
             @ApiImplicitParam(name = "tags", value = "Tags", defaultValue = "[]")
     })
     @ApiResponses({
-            @ApiResponse(code = 201, message = "User has been created"),
-            @ApiResponse(code = 409, message = "User has already existed")
+            @ApiResponse(code = 201, message = "Habit has been created"),
+            @ApiResponse(code = 409, message = "Habit has already existed")
     })
     ResponseEntity add(String username, String title, String description,
                        String icon, String schedule, String tags);
+
+    @ApiOperation("Get habit by ID")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "Username", defaultValue = "nambm"),
+            @ApiImplicitParam(name = "habitId", value = "Habit ID", defaultValue = "")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Habit does not exist")
+    })
+    ResponseEntity<HabitModel> get(String username, String habitId);
 
     @ApiOperation("Check done habit")
     @ApiImplicitParams({

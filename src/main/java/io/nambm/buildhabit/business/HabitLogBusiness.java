@@ -18,7 +18,7 @@ public interface HabitLogBusiness {
 
     List<Long> getLogsById(String username, String habitId);
 
-    List<HabitLogModel> getLogsById(String username, String habitId, Day fromMonth, Day toMonth);
+    List<Long> getLogsById(String username, String habitId, Day fromMonth, Day toMonth);
 
     Map<String, List<Long>> getAllLogs(String username, Day from, Day to);
 }

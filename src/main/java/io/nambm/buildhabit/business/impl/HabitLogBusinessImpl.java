@@ -76,7 +76,7 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
     }
 
     @Override
-    public List<HabitLogModel> getLogsById(String username, String habitId, Day fromMonth, Day toMonth) {
+    public List<Long> getLogsById(String username, String habitId, Day fromMonth, Day toMonth) {
 
         String fromRowKey = HabitLogModel.getRowKey(fromMonth.month, fromMonth.year, habitId);
         String toRowKey = HabitLogModel.getRowKey(toMonth.month, toMonth.year, habitId);
@@ -94,10 +94,16 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
         String rowKeyFilter = TableQuery.combineFilters(
                 fromRowKeyFilter, TableQuery.Operators.AND, toRowKeyFilter);
 
-        return tableService.getAllHabitLogs(username, "{}", rowKeyFilter)
+        List<HabitLogModel> models = tableService.getAllHabitLogs(username, "{}", rowKeyFilter)
                 .stream()
                 .map(HabitLogEntity::toModel)
                 .collect(Collectors.toList());
+
+        List<Long> logs = new LinkedList<>();
+        models.forEach(model -> logs.addAll(model.getTimes()));
+        logs.sort(Long::compareTo);
+
+        return logs;
     }
 
     @Override

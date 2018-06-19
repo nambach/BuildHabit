@@ -45,6 +45,19 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
+    public ResponseEntity<HabitModel> get(HabitModel stubModel) {
+        HabitModel model = habitBusiness.get(stubModel.getUsername(), stubModel.getId());
+
+        if (model != null) {
+            List<Long> logs = habitLogBusiness.getLogsById(stubModel.getUsername(), stubModel.getId());
+            model.setLogs(logs);
+            return new ResponseEntity<>(model, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(model, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Override
     public ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions) {
         return new ResponseEntity<>(habitBusiness.getAllHabits(username, equalConditions), HttpStatus.OK);
     }

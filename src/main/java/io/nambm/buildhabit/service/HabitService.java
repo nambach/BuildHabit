@@ -14,6 +14,8 @@ public interface HabitService {
 
     HttpStatus remove(HabitModel model);
 
+    ResponseEntity<HabitModel> get(HabitModel model);
+
     ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions);
 
     ResponseEntity<List<DailyHabit>> getThisWeekHabits(String username, String equalConditions, int offsetMillis);

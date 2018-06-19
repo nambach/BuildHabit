@@ -55,6 +55,15 @@ public class HabitControllerImpl implements HabitController {
         return new ResponseEntity(status);
     }
 
+    @GetMapping("/habit/get")
+    public ResponseEntity<HabitModel> get(String username, String habitId) {
+        HabitModel stubModel = new HabitModel();
+        stubModel.setUsername(username);
+        stubModel.setId(habitId);
+
+        return habitService.get(stubModel);
+    }
+
     @PutMapping("/habit/check")
     public ResponseEntity checkDone(String username, String habitId, long time, int offsetMillis) {
         HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis)

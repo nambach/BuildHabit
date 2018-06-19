@@ -10,10 +10,7 @@ import io.nambm.buildhabit.util.date.Day;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,7 +55,28 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
     }
 
     @Override
-    public List<HabitLogModel> getLogsById(String username, String habitId, Day fromMonth, Day toMonth) {
+    public List<Long> getLogsById(String username, String habitId) {
+
+        String filter = TableQuery.generateFilterCondition(
+                "HabitId",
+                TableQuery.QueryComparisons.EQUAL,
+                habitId);
+
+        List<HabitLogModel> models = tableService.getAllHabitLogs(username, "{}", filter)
+                .stream()
+                .map(HabitLogEntity::toModel)
+                .collect(Collectors.toList());
+
+        List<Long> logs = new LinkedList<>();
+        models.forEach(model -> logs.addAll(model.getTimes()));
+
+        logs.sort(Long::compareTo);
+
+        return logs;
+    }
+
+    @Override
+    public List<Long> getLogsById(String username, String habitId, Day fromMonth, Day toMonth) {
 
         String fromRowKey = HabitLogModel.getRowKey(fromMonth.month, fromMonth.year, habitId);
         String toRowKey = HabitLogModel.getRowKey(toMonth.month, toMonth.year, habitId);
@@ -76,10 +94,16 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
         String rowKeyFilter = TableQuery.combineFilters(
                 fromRowKeyFilter, TableQuery.Operators.AND, toRowKeyFilter);
 
-        return tableService.getAllHabitLogs(username, "{}", rowKeyFilter)
+        List<HabitLogModel> models = tableService.getAllHabitLogs(username, "{}", rowKeyFilter)
                 .stream()
                 .map(HabitLogEntity::toModel)
                 .collect(Collectors.toList());
+
+        List<Long> logs = new LinkedList<>();
+        models.forEach(model -> logs.addAll(model.getTimes()));
+        logs.sort(Long::compareTo);
+
+        return logs;
     }
 
     @Override

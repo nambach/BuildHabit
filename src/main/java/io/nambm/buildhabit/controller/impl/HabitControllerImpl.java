@@ -96,9 +96,12 @@ public class HabitControllerImpl implements HabitController {
         long toTime = TimeUtils.getTimeMillis(to, TimeUtils.MM_DD_YYYY);
 
         if (fromTime <= 0 || toTime <= 0) {
+            logger.info("status" + ":" + HttpStatus.BAD_REQUEST.toString());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
-            return habitService.getHabitsByDateRange(fromTime, toTime, username, "{}", offsetMillis);
+            ResponseEntity<List<DailyHabit>> responseEntity = habitService.getHabitsByDateRange(fromTime, toTime, username, "{}", offsetMillis);
+            logger.info("status:" + HttpStatus.OK.toString());
+            return responseEntity;
         }
     }
 }

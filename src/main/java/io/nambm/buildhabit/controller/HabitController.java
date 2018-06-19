@@ -71,14 +71,6 @@ public interface HabitController {
     @ApiOperation("Load all habits in current week")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
-            @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "25200000")
-    })
-    @ApiResponse(code = 200, message = "Found")
-    ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(String username, int offsetMillis);
-
-    @ApiOperation("Load all habits in current week")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
             @ApiImplicitParam(name = "from", defaultValue = "06/01/2018", value = "From date (mm/dd/yyyy)"),
             @ApiImplicitParam(name = "to", defaultValue = "06/30/2018", value = "From date (mm/dd/yyyy)"),
             @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "25200000")

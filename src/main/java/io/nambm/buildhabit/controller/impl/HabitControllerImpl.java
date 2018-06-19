@@ -87,12 +87,6 @@ public class HabitControllerImpl implements HabitController {
         return habitService.getAllHabits(username, "{}");
     }
 
-//    @GetMapping("/habit/this-week")
-    public ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(@RequestParam String username,
-                                                                 @RequestParam int offsetMillis) {
-        return habitService.getThisWeekHabits(username, "{}", offsetMillis);
-    }
-
     @GetMapping("/habit/by-time")
     public ResponseEntity<List<DailyHabit>> getHabits(@RequestParam String username,
                                                       @RequestParam String from,

@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.controller;
 
 import io.nambm.buildhabit.model.habit.DailyHabit;
+import io.nambm.buildhabit.model.habit.DailyHabitModel;
 import io.nambm.buildhabit.model.habit.HabitModel;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
@@ -68,15 +69,7 @@ public interface HabitController {
     @ApiResponse(code = 200, message = "Found")
     ResponseEntity<List<HabitModel>> getAllHabits(String username);
 
-    @ApiOperation("Load all habits in current week")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
-            @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "25200000")
-    })
-    @ApiResponse(code = 200, message = "Found")
-    ResponseEntity<List<DailyHabit>> getCurrentWeekHabits(String username, int offsetMillis);
-
-    @ApiOperation("Load all habits in current week")
+    @ApiOperation("Load all habits by time range")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
             @ApiImplicitParam(name = "from", defaultValue = "06/01/2018", value = "From date (mm/dd/yyyy)"),
@@ -85,4 +78,14 @@ public interface HabitController {
     })
     @ApiResponse(code = 200, message = "Found")
     ResponseEntity<List<DailyHabit>> getHabits(String username, String from, String to, int offsetMillis);
+
+    @ApiOperation("Load all habits by date offset")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
+            @ApiImplicitParam(name = "mode", defaultValue = "future", value = "Mode (\"future\" or \"past\")"),
+            @ApiImplicitParam(name = "dateOffset", defaultValue = "2", value = "Number of date (offset)"),
+            @ApiImplicitParam(name = "offsetMillis", value = "Timezone Offset In Millisecond", defaultValue = "25200000")
+    })
+    @ApiResponse(code = 200, message = "Found")
+    ResponseEntity<List<DailyHabitModel>> getHabitsByDateOffset(String username, String mode, int dateOffset, int offsetMillis);
 }

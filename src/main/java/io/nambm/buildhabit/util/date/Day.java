@@ -15,17 +15,6 @@ public class Day {
     public int second;
     public long time;
 
-    public Day(String day) {
-        this.day = day;
-        this.date = 0;
-        this.month = 0;
-        this.year = 0;
-        this.hour = 0;
-        this.minute = 0;
-        this.second = 0;
-        this.time = 0;
-    }
-
     public Day() {
     }
 

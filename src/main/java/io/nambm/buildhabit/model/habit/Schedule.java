@@ -92,7 +92,11 @@ public class Schedule {
                 List<String> weekly = JsonUtils.getArray(times, String.class);
                 days = weekly
                         .stream()
-                        .map(Day::new)
+                        .map(s -> {
+                            Day d = new Day();
+                            d.day = s.toLowerCase();
+                            return d;
+                        })
                         .collect(Collectors.toList());
             } else if (Repetition.MONTHLY.equals(repetition)) {
                 List<String> monthly = JsonUtils.getArray(times, String.class);
@@ -109,14 +113,7 @@ public class Schedule {
                 List<String> monthly = JsonUtils.getArray(times, String.class);
                 days = monthly
                         .stream()
-                        .map(s -> {
-                            int date = Integer.parseInt(s.substring(0, 2));
-                            int month = Integer.parseInt(s.substring(3));
-                            Day d =  new Day();
-                            d.date = date;
-                            d.month = month;
-                            return d;
-                        })
+                        .map(s -> decodeYearly(s))
                         .collect(Collectors.toList());
             }
 
@@ -139,11 +136,25 @@ public class Schedule {
             map.put("times", times.stream().map(day -> day.date + "").collect(Collectors.toList()));
         } else if (Repetition.YEARLY.equals(repetition)) {
             map.put("times", times.stream().map(day ->
-                    String.format("%02d%02d", day.date, day.month)).collect(Collectors.toList()));
+                    encodeYearly(day)).collect(Collectors.toList()));
         }
 
         map.put("reminders", reminders);
 
         return new Gson().toJson(map);
+    }
+
+    private static String encodeYearly(Day day) {
+        return String.format("%02d-%02d", day.month, day.date);
+    }
+
+    // yearly: mm/dd
+    private static Day decodeYearly(String s) {
+        int month = Integer.parseInt(s.substring(0, 2));
+        int date = Integer.parseInt(s.substring(3));
+        Day d =  new Day();
+        d.date = date;
+        d.month = month;
+        return d;
     }
 }

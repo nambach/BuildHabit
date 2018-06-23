@@ -63,43 +63,9 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
-    public ResponseEntity<List<DailyHabit>> getThisWeekHabits(String username, String equalConditions, int offsetMillis) {
-        // Init necessary variables
-        Calendar calendar = Calendar.getInstance();
-        calendar.getTimeZone().setRawOffset(offsetMillis);
-        Week week = TimeUtils.getCurrentWeek(offsetMillis);
-
-        // Init map to classify
-        Map<Day, DailyHabit> map = new LinkedHashMap<>();
-        for (Day day : week) {
-            map.put(day, new DailyHabit(day, true));
-        }
-
-        List<HabitModel> habits = habitBusiness.getAllHabits(username, equalConditions);
-        classifyHabits(habits, map, week.getDays(), Schedule.Repetition.WEEKLY, calendar);
-        classifyHabits(habits, map, week.getDays(), Schedule.Repetition.MONTHLY, calendar);
-        classifyHabits(habits, map, week.getDays(), Schedule.Repetition.YEARLY, calendar);
-
-        // Convert to a list
-        List<DailyHabit> dailyHabits = map.entrySet()
-                .stream()
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
-
-        // Sort habits by time
-        dailyHabits.forEach(dailyHabit ->
-                dailyHabit.getHabits()
-                        .sort(Comparator.comparingLong(DailyHabitModel::getTime))
-        );
-
-        return new ResponseEntity<>(dailyHabits, HttpStatus.OK);
-    }
-
-    @Override
     public ResponseEntity<List<DailyHabit>> getHabitsByDateRange(long from, long to, String username, String equalConditions, int offsetMillis) {
         // Init necessary variables
-        Calendar calendar = Calendar.getInstance();
-        calendar.getTimeZone().setRawOffset(offsetMillis);
+        Calendar calendar = TimeUtils.getCalendar(offsetMillis);
         List<Day> days = TimeUtils.getDays(from, to, calendar);
 
         // Init map to classify

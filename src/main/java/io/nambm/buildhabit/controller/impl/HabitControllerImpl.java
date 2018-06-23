@@ -20,6 +20,7 @@ import java.util.List;
 @RestController
 public class HabitControllerImpl implements HabitController {
 
+    private Logger logger = LoggerFactory.getLogger(HabitControllerImpl.class);
     private final HabitService habitService;
     private final HabitLogService habitLogService;
 
@@ -61,7 +62,9 @@ public class HabitControllerImpl implements HabitController {
         stubModel.setUsername(username);
         stubModel.setId(habitId);
 
-        return habitService.get(stubModel);
+        ResponseEntity<HabitModel> responseEntity = habitService.get(stubModel);
+        logger.info("/habit/get status:" + HttpStatus.OK.toString());
+        return responseEntity;
     }
 
     @PutMapping("/habit/check")
@@ -98,18 +101,17 @@ public class HabitControllerImpl implements HabitController {
                                                       @RequestParam String from,
                                                       @RequestParam String to,
                                                       @RequestParam int offsetMillis) {
-        Logger logger = LoggerFactory.getLogger(HabitControllerImpl.class);
         logger.info("username" + ":" + username);
 
         long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.MM_DD_YYYY);
         long toTime = TimeUtils.getTimeMillis(to, TimeUtils.MM_DD_YYYY);
 
         if (fromTime <= 0 || toTime <= 0) {
-            logger.info("status" + ":" + HttpStatus.BAD_REQUEST.toString());
+            logger.info("/habit/by-time status" + ":" + HttpStatus.BAD_REQUEST.toString());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
             ResponseEntity<List<DailyHabit>> responseEntity = habitService.getHabitsByDateRange(fromTime, toTime, username, "{}", offsetMillis);
-            logger.info("status:" + HttpStatus.OK.toString());
+            logger.info("/habit/by-time status:" + HttpStatus.OK.toString());
             return responseEntity;
         }
     }

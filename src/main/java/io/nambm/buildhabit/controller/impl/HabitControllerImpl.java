@@ -61,7 +61,7 @@ public class HabitControllerImpl implements HabitController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/habit/add")
-    public ResponseEntity addV2(@RequestParam String body) {
+    public ResponseEntity addV2(@RequestBody String body) {
         logger.info("/habit/add");
         HabitModel habitModel = new HabitModel();
 

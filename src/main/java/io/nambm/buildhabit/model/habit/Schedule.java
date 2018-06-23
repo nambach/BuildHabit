@@ -92,7 +92,11 @@ public class Schedule {
                 List<String> weekly = JsonUtils.getArray(times, String.class);
                 days = weekly
                         .stream()
-                        .map(Day::new)
+                        .map(s -> {
+                            Day d = new Day();
+                            d.day = s.toLowerCase();
+                            return d;
+                        })
                         .collect(Collectors.toList());
             } else if (Repetition.MONTHLY.equals(repetition)) {
                 List<String> monthly = JsonUtils.getArray(times, String.class);
@@ -144,6 +148,7 @@ public class Schedule {
         return String.format("%02d-%02d", day.month, day.date);
     }
 
+    // yearly: mm/dd
     private static Day decodeYearly(String s) {
         int month = Integer.parseInt(s.substring(0, 2));
         int date = Integer.parseInt(s.substring(3));

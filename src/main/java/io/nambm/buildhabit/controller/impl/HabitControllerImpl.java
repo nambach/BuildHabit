@@ -2,6 +2,7 @@ package io.nambm.buildhabit.controller.impl;
 
 import io.nambm.buildhabit.controller.HabitController;
 import io.nambm.buildhabit.model.habit.DailyHabit;
+import io.nambm.buildhabit.model.habit.DailyHabitModel;
 import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habit.Schedule;
 import io.nambm.buildhabit.service.HabitLogService;
@@ -15,10 +16,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @RestController
 public class HabitControllerImpl implements HabitController {
+
+    private Logger logger = LoggerFactory.getLogger(HabitControllerImpl.class);
 
     private final HabitService habitService;
     private final HabitLogService habitLogService;
@@ -92,7 +96,6 @@ public class HabitControllerImpl implements HabitController {
                                                       @RequestParam String from,
                                                       @RequestParam String to,
                                                       @RequestParam int offsetMillis) {
-        Logger logger = LoggerFactory.getLogger(HabitControllerImpl.class);
         logger.info("username" + ":" + username);
 
         long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.MM_DD_YYYY);
@@ -103,5 +106,42 @@ public class HabitControllerImpl implements HabitController {
         } else {
             return habitService.getHabitsByDateRange(fromTime, toTime, username, "{}", offsetMillis);
         }
+    }
+
+    @GetMapping("/habit/by-time-offset")
+    public ResponseEntity<List<DailyHabitModel>> getHabitsByDateOffset(@RequestParam String username,
+                                                                       @RequestParam String mode,
+                                                                       @RequestParam int dateOffset,
+                                                                       @RequestParam int offsetMillis) {
+        long current = System.currentTimeMillis();
+        long timeOffset = TimeUtils.getByDateOffset(current, mode, dateOffset, TimeUtils.getCalendar(offsetMillis));
+
+        long from, to;
+        if (TimeUtils.FUTURE.equals(mode)) {
+            from = current;
+            to = timeOffset;
+        } else if (TimeUtils.PAST.equals(mode)) {
+            from = timeOffset;
+            to = current;
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        List<DailyHabitModel> dailyHabitModels = new LinkedList<>();
+
+        // Fetch habits grouped by dates
+        ResponseEntity<List<DailyHabit>> responseEntity = habitService.getHabitsByDateRange(from, to, username, "{}", offsetMillis);
+
+        // Collect the habitModel from each date and put into result
+        responseEntity.getBody().forEach(dailyHabit -> dailyHabitModels.addAll(dailyHabit.getHabits()));
+
+        // Sort by chronological order
+        if (TimeUtils.FUTURE.equals(mode)) {
+            dailyHabitModels.sort((o1, o2) -> Math.toIntExact(o1.getTime() - o2.getTime()));
+        } else if (TimeUtils.PAST.equals(mode)) {
+            dailyHabitModels.sort((o1, o2) -> Math.toIntExact(o2.getTime() - o1.getTime()));
+        }
+
+        return new ResponseEntity<>(dailyHabitModels, responseEntity.getStatusCode());
     }
 }

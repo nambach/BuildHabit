@@ -65,8 +65,7 @@ public class HabitServiceImpl implements HabitService {
     @Override
     public ResponseEntity<List<DailyHabit>> getHabitsByDateRange(long from, long to, String username, String equalConditions, int offsetMillis) {
         // Init necessary variables
-        Calendar calendar = Calendar.getInstance();
-        calendar.getTimeZone().setRawOffset(offsetMillis);
+        Calendar calendar = TimeUtils.getCalendar(offsetMillis);
         List<Day> days = TimeUtils.getDays(from, to, calendar);
 
         // Init map to classify

@@ -14,6 +14,15 @@ public class TimeUtils {
     public static final String DD_MM_YYYY = "dd/MM/yyyy";
     public static final String MM_DD_YYYY = "MM/dd/yyyy";
 
+    public static final String FUTURE = "future";
+    public static final String PAST = "past";
+
+    public static Calendar getCalendar(int offsetMillis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.getTimeZone().setRawOffset(offsetMillis);
+        return calendar;
+    }
+
     public static int getCalendarDayOfWeek(String dayOfWeek) {
         switch (dayOfWeek.toLowerCase()) {
             case AppConstant.MON:
@@ -157,5 +166,20 @@ public class TimeUtils {
         }
 
         return 0;
+    }
+
+    public static long getByDateOffset(long current, String mode, int offset, Calendar calendar) {
+        calendar.setTimeInMillis(current);
+
+        switch (mode) {
+            case FUTURE:
+                calendar.add(Calendar.DATE, offset);
+                break;
+            case PAST:
+                calendar.add(Calendar.DATE, -1 * offset);
+                break;
+        }
+
+        return calendar.getTimeInMillis();
     }
 }

@@ -33,15 +33,45 @@ public class HabitControllerImpl implements HabitController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/habit/add")
+    @PostMapping("/habit/add-v1")
     public ResponseEntity add(@RequestParam String username,
                               @RequestParam String title,
                               @RequestParam String description,
                               @RequestParam String icon,
                               @RequestParam String schedule,
                               @RequestParam String tags) {
+        logger.info("/habit/add-v1");
+        HabitModel habitModel = new HabitModel();
+        habitModel.setUsername(username);
+        habitModel.setId(username + "_" + System.currentTimeMillis());
+
+        habitModel.setTitle(title);
+        habitModel.setDescription(description);
+        habitModel.setIcon(icon);
+
+        habitModel.setSchedule(Schedule.from(schedule));
+        habitModel.setTags(JsonUtils.getArray(tags, String.class));
+
+        habitModel.setStartTime(System.currentTimeMillis());
+        habitModel.setEndTime(-1L);
+
+        HttpStatus status = habitService.insert(habitModel);
+        return new ResponseEntity(status);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/habit/add")
+    public ResponseEntity addV2(@RequestParam String body) {
         logger.info("/habit/add");
         HabitModel habitModel = new HabitModel();
+
+        String username = JsonUtils.getValue(body, "username");
+        String title = JsonUtils.getValue(body, "title");
+        String description = JsonUtils.getValue(body, "description");
+        String icon = JsonUtils.getValue(body, "icon");
+        String schedule = JsonUtils.getValue(body, "schedule");
+        String tags = JsonUtils.getValue(body, "tags");
+
         habitModel.setUsername(username);
         habitModel.setId(username + "_" + System.currentTimeMillis());
 

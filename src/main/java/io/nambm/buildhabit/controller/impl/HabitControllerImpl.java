@@ -86,7 +86,7 @@ public class HabitControllerImpl implements HabitController {
         habitModel.setEndTime(-1L);
 
         HttpStatus status = habitService.insert(habitModel);
-        return new ResponseEntity<>(habitModel.getId(), status);
+        return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
     @GetMapping("/habit/get")

@@ -11,7 +11,7 @@ import static io.nambm.buildhabit.util.MinimalJsonTypeConverter.convertToObject;
 
 public class JsonUtils {
 
-    private static final String EMPTY_OBJECT = "{}";
+    public static final String EMPTY_OBJECT = "{}";
     private static final String EMPTY_LIST = "[]";
     private static final String NULL = "null";
 

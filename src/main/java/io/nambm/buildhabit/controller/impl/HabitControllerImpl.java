@@ -61,7 +61,7 @@ public class HabitControllerImpl implements HabitController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/habit/add")
-    public ResponseEntity addV2(@RequestBody String body) {
+    public ResponseEntity<String> addV2(@RequestBody String body) {
         logger.info("/habit/add");
         HabitModel habitModel = new HabitModel();
 
@@ -86,7 +86,7 @@ public class HabitControllerImpl implements HabitController {
         habitModel.setEndTime(-1L);
 
         HttpStatus status = habitService.insert(habitModel);
-        return new ResponseEntity(status);
+        return new ResponseEntity<>(habitModel.getId(), status);
     }
 
     @GetMapping("/habit/get")

@@ -33,33 +33,6 @@ public class HabitControllerImpl implements HabitController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/habit/add-v1")
-    public ResponseEntity add(@RequestParam String username,
-                              @RequestParam String title,
-                              @RequestParam String description,
-                              @RequestParam String icon,
-                              @RequestParam String schedule,
-                              @RequestParam String tags) {
-        logger.info("/habit/add-v1");
-        HabitModel habitModel = new HabitModel();
-        habitModel.setUsername(username);
-        habitModel.setId(username + "_" + System.currentTimeMillis());
-
-        habitModel.setTitle(title);
-        habitModel.setDescription(description);
-        habitModel.setIcon(icon);
-
-        habitModel.setSchedule(Schedule.from(schedule));
-        habitModel.setTags(JsonUtils.getArray(tags, String.class));
-
-        habitModel.setStartTime(System.currentTimeMillis());
-        habitModel.setEndTime(-1L);
-
-        HttpStatus status = habitService.insert(habitModel);
-        return new ResponseEntity(status);
-    }
-
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/habit/add")
     public ResponseEntity<String> addV2(@RequestBody String body) {
         logger.info("/habit/add");
@@ -89,6 +62,46 @@ public class HabitControllerImpl implements HabitController {
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
+    @PutMapping("/habit/check")
+    public ResponseEntity<String> checkDoneV2(@RequestBody String body) {
+        String username = JsonUtils.getValue(body, "username");
+        String habitId = JsonUtils.getValue(body, "habitId");
+        long time = 0;
+        int offsetMillis = 0;
+        try {
+            time = JsonUtils.getValue(body, "time", Long.class);
+            offsetMillis = JsonUtils.getValue(body, "offsetMillis", Integer.class);
+        } catch (Exception e) {
+            return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, HttpStatus.BAD_REQUEST);
+        }
+
+        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis)
+                ? HttpStatus.OK
+                : HttpStatus.NOT_FOUND;
+
+        return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
+    }
+
+    @PutMapping("/habit/un-check")
+    public ResponseEntity<String> undoCheckDone(@RequestBody String body) {
+        String username = JsonUtils.getValue(body, "username");
+        String habitId = JsonUtils.getValue(body, "habitId");
+        long time = 0;
+        int offsetMillis = 0;
+        try {
+            time = JsonUtils.getValue(body, "time", Long.class);
+            offsetMillis = JsonUtils.getValue(body, "offsetMillis", Integer.class);
+        } catch (Exception e) {
+            return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, HttpStatus.BAD_REQUEST);
+        }
+
+        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis)
+                ? HttpStatus.OK
+                : HttpStatus.NOT_FOUND;
+
+        return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
+    }
+
     @GetMapping("/habit/get")
     public ResponseEntity<HabitModel> get(String username, String habitId) {
         HabitModel stubModel = new HabitModel();
@@ -98,24 +111,6 @@ public class HabitControllerImpl implements HabitController {
         ResponseEntity<HabitModel> responseEntity = habitService.get(stubModel);
         logger.info("/habit/get status:" + HttpStatus.OK.toString());
         return responseEntity;
-    }
-
-    @PutMapping("/habit/check")
-    public ResponseEntity checkDone(String username, String habitId, long time, int offsetMillis) {
-        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
-
-        return new ResponseEntity(status);
-    }
-
-    @PutMapping("/habit/un-check")
-    public ResponseEntity undoCheckDone(String username, String habitId, long time, int offsetMillis) {
-        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
-
-        return new ResponseEntity(status);
     }
 
     @GetMapping("/habit/all")

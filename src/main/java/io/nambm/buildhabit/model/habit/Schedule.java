@@ -100,6 +100,7 @@ public class Schedule {
                             return d;
                         })
                         .collect(Collectors.toList());
+                repetition = Repetition.WEEKLY;
             } else if (Repetition.WEEKLY.equals(repetition)) {
                 List<String> weekly = JsonUtils.getArray(times, String.class);
                 days = weekly

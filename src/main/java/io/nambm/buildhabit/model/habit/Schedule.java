@@ -4,6 +4,7 @@ import com.eclipsesource.json.Json;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import io.nambm.buildhabit.util.JsonUtils;
+import io.nambm.buildhabit.util.TimeUtils;
 import io.nambm.buildhabit.util.date.Day;
 
 import java.util.LinkedHashMap;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 public class Schedule {
 
     public static class Repetition {
+        public static final String DAILY = "daily";
         public static final String WEEKLY = "weekly";
         public static final String MONTHLY = "monthly";
         public static final String YEARLY = "yearly";
@@ -88,7 +90,17 @@ public class Schedule {
 
             List<Day> days = null;
 
-            if (Repetition.WEEKLY.equals(repetition)) {
+            if (Repetition.DAILY.equals(repetition)) {
+                List<String> weekly = TimeUtils.DAY_OF_WEEK;
+                days = weekly
+                        .stream()
+                        .map(s -> {
+                            Day d = new Day();
+                            d.day = s.toLowerCase();
+                            return d;
+                        })
+                        .collect(Collectors.toList());
+            } else if (Repetition.WEEKLY.equals(repetition)) {
                 List<String> weekly = JsonUtils.getArray(times, String.class);
                 days = weekly
                         .stream()

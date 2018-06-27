@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -20,6 +21,13 @@ public class UserControllerImpl implements UserController {
     public UserControllerImpl(UserService userService) {
         this.userService = userService;
     }
+
+
+    @GetMapping("/user-management")
+    public ModelAndView handleHome() {
+        return new ModelAndView("user/user-management");
+    }
+
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/user/add")

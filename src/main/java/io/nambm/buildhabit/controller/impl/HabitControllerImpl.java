@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class HabitControllerImpl implements HabitController {
@@ -158,6 +159,7 @@ public class HabitControllerImpl implements HabitController {
         }
 
         List<DailyHabitModel> dailyHabitModels = new LinkedList<>();
+        List<DailyHabitModel> result = new LinkedList<>();
 
         // Fetch habits grouped by dates
         ResponseEntity<List<DailyHabit>> responseEntity = habitService.getHabitsByDateRange(from, to, username, "{}", offsetMillis);
@@ -167,9 +169,17 @@ public class HabitControllerImpl implements HabitController {
 
         // Sort by chronological order
         if (TimeUtils.FUTURE.equals(mode)) {
-            dailyHabitModels.sort((o1, o2) -> Math.toIntExact(o1.getTime() - o2.getTime()));
+            result = dailyHabitModels
+                    .stream()
+                    .filter(dailyHabitModel -> dailyHabitModel.getTime() > current)
+                    .collect(Collectors.toList());
+            result.sort((o1, o2) -> Math.toIntExact(o1.getTime() - o2.getTime()));
         } else if (TimeUtils.PAST.equals(mode)) {
-            dailyHabitModels.sort((o1, o2) -> Math.toIntExact(o2.getTime() - o1.getTime()));
+            result = dailyHabitModels
+                    .stream()
+                    .filter(dailyHabitModel -> dailyHabitModel.getTime() < current)
+                    .collect(Collectors.toList());
+            result.sort((o1, o2) -> Math.toIntExact(o2.getTime() - o1.getTime()));
         }
 
         return new ResponseEntity<>(dailyHabitModels, responseEntity.getStatusCode());

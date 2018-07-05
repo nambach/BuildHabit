@@ -182,6 +182,6 @@ public class HabitControllerImpl implements HabitController {
             result.sort((o1, o2) -> Math.toIntExact(o2.getTime() - o1.getTime()));
         }
 
-        return new ResponseEntity<>(dailyHabitModels, responseEntity.getStatusCode());
+        return new ResponseEntity<>(result, responseEntity.getStatusCode());
     }
 }

@@ -16,10 +16,11 @@ import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.*;
 
+import static io.nambm.buildhabit.table.constant.Constants.AZURE_ACC_KEY;
+import static io.nambm.buildhabit.table.constant.Constants.AZURE_ACC_NAME;
+
 public class TableServiceImpl<T extends TableServiceEntity> implements TableService<T> {
 
-    private static final String AZURE_ACC_NAME = "AZURE_STORAGE_ACCOUNT_NAME";
-    private static final String AZURE_ACC_KEY = "AZURE_STORAGE_ACCOUNT_KEY";
     public static final String PARTITION_KEY = "PartitionKey";
     public static final String ROW_KEY = "RowKey";
     private static final int MAX_QUERY_COUNT = 1000;

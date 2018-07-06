@@ -16,4 +16,5 @@ public interface TemplateController {
     @ApiResponse(code = 200, message = "Found")
     ResponseEntity<List<HabitModel>> getTemplateHabits();
 
+    ResponseEntity<String> uploadImage(String image);
 }

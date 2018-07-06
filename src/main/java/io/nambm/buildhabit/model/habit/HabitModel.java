@@ -114,7 +114,6 @@ public class HabitModel {
         entity.setContent(JsonUtils.toJson(Arrays.asList("title", "description", "icon"),
                 Arrays.asList(title, description, icon)));
         entity.setSchedules(schedule.toJson());
-        entity.setLogs(JsonUtils.toJson(logs));
         entity.setTags(JsonUtils.toJson(tags));
         entity.setTimeRange(JsonUtils.toJson(Arrays.asList("startTime", "endTime"),
                 Arrays.asList(startTime, endTime)));

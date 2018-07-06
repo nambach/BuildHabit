@@ -10,7 +10,6 @@ import io.nambm.buildhabit.util.JsonUtils;
 public class HabitEntity extends TableServiceEntity {
     private String content;
     private String schedules;
-    private String logs;
     private String tags;
     private String timeRange;
 
@@ -31,14 +30,6 @@ public class HabitEntity extends TableServiceEntity {
 
     public void setSchedules(String schedules) {
         this.schedules = schedules;
-    }
-
-    public String getLogs() {
-        return logs;
-    }
-
-    public void setLogs(String logs) {
-        this.logs = logs;
     }
 
     public String getTags() {
@@ -69,7 +60,6 @@ public class HabitEntity extends TableServiceEntity {
 
         model.setSchedule(Schedule.from(schedules));
         model.setTags(JsonUtils.getArray(tags, String.class));
-        model.setLogs(JsonUtils.getArray(logs, Long.class));
 
         model.setStartTime(JsonUtils.getValue(timeRange, "startTime", Long.class));
         model.setEndTime(JsonUtils.getValue(timeRange, "endTime", Long.class));

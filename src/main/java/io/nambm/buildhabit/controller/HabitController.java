@@ -3,6 +3,7 @@ package io.nambm.buildhabit.controller;
 import io.nambm.buildhabit.model.habit.DailyHabit;
 import io.nambm.buildhabit.model.habit.DailyHabitModel;
 import io.nambm.buildhabit.model.habit.HabitModel;
+import io.nambm.buildhabit.model.habitlog.StatisticResponse;
 import io.swagger.annotations.*;
 import org.springframework.http.ResponseEntity;
 
@@ -12,6 +13,9 @@ import java.util.List;
 public interface HabitController {
 
     ResponseEntity<String> addV2(String body);
+    ResponseEntity<String> updateV2(String body);
+    ResponseEntity<String> stopHabitV2(String body);
+
     ResponseEntity<String> checkDoneV2(String body);
     ResponseEntity<String> undoCheckDone(String body);
 
@@ -50,4 +54,15 @@ public interface HabitController {
     })
     @ApiResponse(code = 200, message = "Found")
     ResponseEntity<List<DailyHabitModel>> getHabitsByDateOffset(String username, String mode, int dateOffset, int offsetMillis);
+
+    @ApiOperation("Get logs history of a habit")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
+            @ApiImplicitParam(name = "habitId", defaultValue = "", value = "Habit Id"),
+            @ApiImplicitParam(name = "offsetMillis", defaultValue = "25200000", value = "Timezone Offset In Millisecond")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK")
+    })
+    ResponseEntity<StatisticResponse> getLogs(String username, String habitId, int offsetMillis);
 }

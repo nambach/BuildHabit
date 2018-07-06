@@ -38,7 +38,7 @@ public class HabitControllerV1Impl implements HabitControllerV1 {
         logger.info("/habit/v1/add");
         HabitModel habitModel = new HabitModel();
         habitModel.setUsername(username);
-        habitModel.setId(username + "_" + System.currentTimeMillis());
+        habitModel.setId(habitModel.generateId());
 
         habitModel.setTitle(title);
         habitModel.setDescription(description);
@@ -51,6 +51,41 @@ public class HabitControllerV1Impl implements HabitControllerV1 {
         habitModel.setEndTime(-1L);
 
         HttpStatus status = habitService.insert(habitModel);
+        return new ResponseEntity(status);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity update(@RequestParam String username,
+                                 @RequestParam String id,
+                                 @RequestParam String title,
+                                 @RequestParam String description,
+                                 @RequestParam String icon,
+                                 @RequestParam String schedule,
+                                 @RequestParam String tags) {
+        logger.info("/habit/v1/update");
+        HabitModel habitModel = new HabitModel();
+        habitModel.setUsername(username);
+        habitModel.setId(id);
+
+        habitModel.setTitle(title);
+        habitModel.setDescription(description);
+        habitModel.setIcon(icon);
+
+        habitModel.setSchedule(Schedule.from(schedule));
+        habitModel.setTags(JsonUtils.getArray(tags, String.class));
+
+        HttpStatus status = habitService.update(habitModel);
+        return new ResponseEntity(status);
+    }
+
+    @PutMapping("/stop")
+    public ResponseEntity stopHabit(@RequestParam String habitId,
+                                    @RequestParam String username) {
+        HabitModel habitModel = new HabitModel();
+        habitModel.setUsername(username);
+        habitModel.setId(habitId);
+
+        HttpStatus status = habitService.remove(habitModel);
         return new ResponseEntity(status);
     }
 

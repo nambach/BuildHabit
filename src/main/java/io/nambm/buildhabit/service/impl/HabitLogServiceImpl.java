@@ -1,22 +1,37 @@
 package io.nambm.buildhabit.service.impl;
 
+import io.nambm.buildhabit.business.HabitBusiness;
+import io.nambm.buildhabit.business.HabitGroupBusiness;
 import io.nambm.buildhabit.business.HabitLogBusiness;
+import io.nambm.buildhabit.model.habit.DailyHabit;
+import io.nambm.buildhabit.model.habit.HabitModel;
+import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
 import io.nambm.buildhabit.model.habitlog.HabitLogModel;
+import io.nambm.buildhabit.model.habitlog.StatisticResponse;
 import io.nambm.buildhabit.service.HabitLogService;
+import io.nambm.buildhabit.service.HabitService;
+import io.nambm.buildhabit.util.TimeUtils;
 import io.nambm.buildhabit.util.date.Day;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
+import java.util.*;
 
 @Service
 public class HabitLogServiceImpl implements HabitLogService {
 
     private final HabitLogBusiness habitLogBusiness;
+    private final HabitBusiness habitBusiness;
+    private final HabitGroupBusiness habitGroupBusiness;
+
+    private final HabitService habitService;
 
     @Autowired
-    public HabitLogServiceImpl(HabitLogBusiness habitLogBusiness) {
+    public HabitLogServiceImpl(HabitLogBusiness habitLogBusiness, HabitBusiness habitBusiness, HabitGroupBusiness habitGroupBusiness, HabitService habitService) {
         this.habitLogBusiness = habitLogBusiness;
+        this.habitBusiness = habitBusiness;
+        this.habitGroupBusiness = habitGroupBusiness;
+        this.habitService = habitService;
     }
 
     @Override
@@ -63,5 +78,51 @@ public class HabitLogServiceImpl implements HabitLogService {
             result = false;
         }
         return result;
+    }
+
+    @Override
+    public StatisticResponse getLogs(String username, String habitId, int offsetMillis) {
+        HabitModel rootHabit = habitBusiness.get(username, habitId);
+        List<HabitModel> habitMembers = new LinkedList<>();
+        List<StatisticResponse.StatisticEntry> logs = new LinkedList<>();
+
+        if (rootHabit == null) {
+            return null;
+        }
+        habitMembers.add(rootHabit);
+
+        if (rootHabit.getGroupId() != null) {
+            HabitGroupModel groupModel = habitGroupBusiness.get(rootHabit.getGroupId());
+
+            for (String id : groupModel.getHabits()) {
+                HabitModel habit = habitBusiness.get(username, id);
+                habitMembers.add(habit);
+            }
+        }
+
+        Calendar calendar = TimeUtils.getCalendar(offsetMillis);
+
+        for (HabitModel member : habitMembers) {
+            long from = member.getStartTime();
+            long to = member.getEndTime() != -1
+                    ? member.getEndTime()
+                    : System.currentTimeMillis();
+            List<Long> memberLogs = habitLogBusiness.getLogsById(username, member.getId());
+
+            for (Day day : member.getSchedule().getTimes()) {
+                // Set hour and minute into day
+                day.hour = member.getSchedule().getFrom().getHour();
+                day.minute = member.getSchedule().getFrom().getMinute();
+
+                List<Long> times = TimeUtils.getTimes(from, to, day, member.getSchedule().getRepetition(), calendar);
+                for (Long time : times) {
+                    boolean done = memberLogs.contains(time);
+                    logs.add(new StatisticResponse.StatisticEntry(time, done));
+                }
+            }
+        }
+
+        logs.sort(Comparator.comparingLong(value -> value.time));
+        return new StatisticResponse(rootHabit, habitMembers, logs);
     }
 }

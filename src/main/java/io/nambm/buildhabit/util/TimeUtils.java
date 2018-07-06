@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.util;
 
 import io.nambm.buildhabit.constant.AppConstant;
+import io.nambm.buildhabit.model.habit.Schedule;
 import io.nambm.buildhabit.util.date.Day;
 import io.nambm.buildhabit.util.date.Week;
 
@@ -181,5 +182,64 @@ public class TimeUtils {
         }
 
         return calendar.getTimeInMillis();
+    }
+
+    public static List<Long> getTimes(long from, long to, Day time, String repetition, Calendar calendar) {
+        List<Long> times = new LinkedList<>();
+
+        // Set the 'to' date
+        calendar.setTimeInMillis(to);
+        calendar.set(Calendar.HOUR_OF_DAY, 23); // ! clear would not reset the hour of day !
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        long boundary = calendar.getTimeInMillis();
+
+        // Set the 'from' date
+        calendar.setTimeInMillis(from);
+        calendar.set(Calendar.HOUR_OF_DAY, time.hour); // ! clear would not reset the hour of day !
+        calendar.set(Calendar.MINUTE, time.minute);
+        calendar.clear(Calendar.SECOND);
+        calendar.clear(Calendar.MILLISECOND);
+
+        switch (repetition) {
+            case Schedule.Repetition.WEEKLY:
+                calendar.set(Calendar.DAY_OF_WEEK, getCalendarDayOfWeek(time.day));
+                while (calendar.getTimeInMillis() < from) {
+                    calendar.add(Calendar.DATE, 7);
+                }
+                break;
+            case Schedule.Repetition.MONTHLY:
+                calendar.set(Calendar.DATE, time.date);
+                while (calendar.getTimeInMillis() < from) {
+                    calendar.add(Calendar.MONTH, 1);
+                }
+                break;
+            case Schedule.Repetition.YEARLY:
+                calendar.set(Calendar.DATE, time.date);
+                calendar.set(Calendar.MONTH, time.month);
+                while (calendar.getTimeInMillis() < from) {
+                    calendar.add(Calendar.YEAR, 1);
+                }
+                break;
+        }
+
+        while (calendar.getTimeInMillis() < boundary) {
+            times.add(calendar.getTimeInMillis());
+
+            switch (repetition) {
+                case Schedule.Repetition.WEEKLY:
+                    calendar.add(Calendar.DATE, 7);
+                    break;
+                case Schedule.Repetition.MONTHLY:
+                    calendar.add(Calendar.MONTH, 1);
+                    break;
+                case Schedule.Repetition.YEARLY:
+                    calendar.add(Calendar.YEAR, 1);
+                    break;
+            }
+        }
+
+        return times;
     }
 }

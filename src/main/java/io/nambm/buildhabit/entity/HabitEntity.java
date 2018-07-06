@@ -12,6 +12,7 @@ public class HabitEntity extends TableServiceEntity {
     private String schedules;
     private String tags;
     private String timeRange;
+    private String groupId;
 
     public HabitEntity() {
     }
@@ -48,6 +49,14 @@ public class HabitEntity extends TableServiceEntity {
         this.timeRange = timeRange;
     }
 
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     public HabitModel toModel() {
         HabitModel model = new HabitModel();
 
@@ -63,6 +72,8 @@ public class HabitEntity extends TableServiceEntity {
 
         model.setStartTime(JsonUtils.getValue(timeRange, "startTime", Long.class));
         model.setEndTime(JsonUtils.getValue(timeRange, "endTime", Long.class));
+
+        model.setGroupId(this.groupId);
 
         return model;
     }

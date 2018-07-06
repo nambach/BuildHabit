@@ -33,13 +33,27 @@ public class HabitBusinessImpl implements HabitBusiness {
 
     @Override
     public boolean remove(String username, String id) {
-        HabitEntity entity = habitTableService.get(username, id);
+        HabitModel wrapper = wrap(username, id);
+
+        HabitEntity entity = habitTableService.get(wrapper.getPartitionKey(), wrapper.getRowKey());
         return habitTableService.remove(entity);
     }
 
     @Override
+    public HabitModel get(HabitModel model) {
+        HabitEntity entity = habitTableService.get(model.getPartitionKey(), model.getRowKey());
+        if (entity != null) {
+            return entity.toModel();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public HabitModel get(String username, String id) {
-        HabitEntity entity = habitTableService.get(username, id);
+        HabitModel wrapper = wrap(username, id);
+
+        HabitEntity entity = habitTableService.get(wrapper.getPartitionKey(), wrapper.getRowKey());
         if (entity != null) {
             return entity.toModel();
         } else {
@@ -53,5 +67,12 @@ public class HabitBusinessImpl implements HabitBusiness {
                 .stream()
                 .map(HabitEntity::toModel)
                 .collect(Collectors.toList());
+    }
+
+    private HabitModel wrap(String username, String id) {
+        HabitModel wrapper = new HabitModel();
+        wrapper.setId(id);
+        wrapper.setUsername(username);
+        return wrapper;
     }
 }

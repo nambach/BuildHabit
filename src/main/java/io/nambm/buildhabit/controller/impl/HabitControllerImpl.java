@@ -4,7 +4,7 @@ import io.nambm.buildhabit.controller.HabitController;
 import io.nambm.buildhabit.model.habit.DailyHabit;
 import io.nambm.buildhabit.model.habit.DailyHabitModel;
 import io.nambm.buildhabit.model.habit.HabitModel;
-import io.nambm.buildhabit.model.habit.Schedule;
+import io.nambm.buildhabit.model.habitlog.StatisticResponse;
 import io.nambm.buildhabit.service.HabitLogService;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.JsonUtils;
@@ -37,29 +37,34 @@ public class HabitControllerImpl implements HabitController {
     @PostMapping("/habit/add")
     public ResponseEntity<String> addV2(@RequestBody String body) {
         logger.info("/habit/add");
-        HabitModel habitModel = new HabitModel();
+        HabitModel habitModel = HabitModel.parseRequest(body);
 
-        String username = JsonUtils.getValue(body, "username");
-        String title = JsonUtils.getValue(body, "title");
-        String description = JsonUtils.getValue(body, "description");
-        String icon = JsonUtils.getValue(body, "icon");
-        String schedule = JsonUtils.getValue(body, "schedule");
-        String tags = JsonUtils.getValue(body, "tags");
-
-        habitModel.setUsername(username);
-        habitModel.setId(username + "_" + System.currentTimeMillis());
-
-        habitModel.setTitle(title);
-        habitModel.setDescription(description);
-        habitModel.setIcon(icon);
-
-        habitModel.setSchedule(Schedule.from(schedule));
-        habitModel.setTags(JsonUtils.getArray(tags, String.class));
+        habitModel.setId(habitModel.generateId());
 
         habitModel.setStartTime(System.currentTimeMillis());
         habitModel.setEndTime(-1L);
 
         HttpStatus status = habitService.insert(habitModel);
+        return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
+    }
+
+    @PutMapping("/habit/update")
+    public ResponseEntity<String> updateV2(@RequestBody String body) {
+        logger.info("/habit/update");
+
+        HabitModel habitModel = HabitModel.parseRequest(body);
+
+        HttpStatus status = habitService.update(habitModel);
+        return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
+    }
+
+    @PutMapping("/habit/stop")
+    public ResponseEntity<String> stopHabitV2(@RequestBody String body) {
+        logger.info("/habit/stop");
+
+        HabitModel habitModel = HabitModel.parseRequest(body);
+
+        HttpStatus status = habitService.remove(habitModel);
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
@@ -183,5 +188,12 @@ public class HabitControllerImpl implements HabitController {
         }
 
         return new ResponseEntity<>(result, responseEntity.getStatusCode());
+    }
+
+    @GetMapping("/habit/get-logs")
+    public ResponseEntity<StatisticResponse> getLogs(String username, String habitId, int offsetMillis) {
+        StatisticResponse response = habitLogService.getLogs(username, habitId, offsetMillis);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

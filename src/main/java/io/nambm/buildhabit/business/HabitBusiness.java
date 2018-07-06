@@ -12,6 +12,8 @@ public interface HabitBusiness {
 
     boolean remove(String username, String id);
 
+    HabitModel get(HabitModel model);
+
     HabitModel get(String username, String id);
 
     List<HabitModel> getAllHabits(String username, String equalConditions);

@@ -22,6 +22,8 @@ public class HabitModel {
     private Long startTime;
     private Long endTime;
 
+    private String groupId;
+
     public HabitModel() {
     }
 
@@ -105,11 +107,19 @@ public class HabitModel {
         this.endTime = endTime;
     }
 
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
     public HabitEntity toEntity() {
         HabitEntity entity = new HabitEntity();
 
-        entity.setPartitionKey(getPartitionKey(this));
-        entity.setRowKey(getRowKey(this));
+        entity.setPartitionKey(this.getPartitionKey());
+        entity.setRowKey(this.getRowKey());
 
         entity.setContent(JsonUtils.toJson(Arrays.asList("title", "description", "icon"),
                 Arrays.asList(title, description, icon)));
@@ -118,14 +128,48 @@ public class HabitModel {
         entity.setTimeRange(JsonUtils.toJson(Arrays.asList("startTime", "endTime"),
                 Arrays.asList(startTime, endTime)));
 
+        entity.setGroupId(this.groupId);
+
         return entity;
     }
 
-    public static String getPartitionKey(HabitModel model) {
-        return model.username;
+    public String getPartitionKey() {
+        return this.username;
     }
 
-    public static String getRowKey(HabitModel model) {
-        return model.id;
+    public String getRowKey() {
+        return this.id;
+    }
+
+    public static HabitModel parseRequest(String body) {
+        HabitModel habitModel = new HabitModel();
+
+        String username = JsonUtils.getValue(body, "username");
+        String id = JsonUtils.getValue(body, "id");
+        String title = JsonUtils.getValue(body, "title");
+        String description = JsonUtils.getValue(body, "description");
+        String icon = JsonUtils.getValue(body, "icon");
+        String schedule = JsonUtils.getValue(body, "schedule");
+        String tags = JsonUtils.getValue(body, "tags");
+
+        habitModel.setUsername(username);
+        habitModel.setId(id);
+
+        habitModel.setTitle(title);
+        habitModel.setDescription(description);
+        habitModel.setIcon(icon);
+
+        habitModel.setSchedule(Schedule.from(schedule));
+        habitModel.setTags(JsonUtils.getArray(tags, String.class));
+
+        return habitModel;
+    }
+
+    public String generateId() {
+        if (this.username == null) {
+            this.username = "";
+        }
+
+        return this.username + "_" + System.currentTimeMillis();
     }
 }

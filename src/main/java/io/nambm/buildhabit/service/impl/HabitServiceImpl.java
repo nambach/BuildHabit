@@ -4,11 +4,11 @@ import io.nambm.buildhabit.business.HabitBusiness;
 import io.nambm.buildhabit.business.HabitLogBusiness;
 import io.nambm.buildhabit.constant.AppConstant;
 import io.nambm.buildhabit.model.habit.*;
-import io.nambm.buildhabit.model.habitlog.HabitLogModel;
+import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
+import io.nambm.buildhabit.service.HabitGroupService;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.TimeUtils;
 import io.nambm.buildhabit.util.date.Day;
-import io.nambm.buildhabit.util.date.Week;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +22,13 @@ public class HabitServiceImpl implements HabitService {
 
     private final HabitBusiness habitBusiness;
     private final HabitLogBusiness habitLogBusiness;
+    private final HabitGroupService habitGroupService;
 
     @Autowired
-    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness) {
+    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness, HabitGroupService habitGroupService) {
         this.habitBusiness = habitBusiness;
         this.habitLogBusiness = habitLogBusiness;
+        this.habitGroupService = habitGroupService;
     }
 
     @Override
@@ -36,17 +38,60 @@ public class HabitServiceImpl implements HabitService {
 
     @Override
     public HttpStatus update(HabitModel model) {
-        return null;
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        HabitModel current = habitBusiness.get(model);
+
+        if (current != null) {
+            // delete (stop) current habit
+            current.setEndTime(System.currentTimeMillis());
+            // create new habit by setting another Id
+            model.setId(model.generateId());
+            model.setStartTime(System.currentTimeMillis());
+            model.setEndTime(-1L);
+
+            if (current.getGroupId() == null) {
+                // create group
+                HabitGroupModel groupModel = habitGroupService.createGroup(current.getId());
+                // add new habit to group
+                habitGroupService.addHabitToGroup(model.getId(), groupModel.getGroupId());
+                // update habit
+                current.setGroupId(groupModel.getGroupId());
+                model.setGroupId(groupModel.getGroupId());
+            } else {
+                // add new habit to group
+                habitGroupService.addHabitToGroup(model.getId(), current.getGroupId());
+                // update new habit
+                model.setGroupId(current.getGroupId());
+            }
+
+            // commit transaction
+            habitBusiness.update(current);
+            habitBusiness.insert(model);
+
+            status = HttpStatus.OK;
+        }
+
+        return status;
     }
 
     @Override
     public HttpStatus remove(HabitModel model) {
-        return null;
+        HttpStatus status = HttpStatus.NOT_FOUND;
+
+        HabitModel current = habitBusiness.get(model);
+        if (current != null) {
+            current.setEndTime(System.currentTimeMillis());
+            habitBusiness.update(current);
+            status = HttpStatus.OK;
+        }
+
+        return status;
     }
 
     @Override
     public ResponseEntity<HabitModel> get(HabitModel stubModel) {
-        HabitModel model = habitBusiness.get(stubModel.getUsername(), stubModel.getId());
+        HabitModel model = habitBusiness.get(stubModel);
 
         if (model != null) {
             List<Long> logs = habitLogBusiness.getLogsById(stubModel.getUsername(), stubModel.getId());

@@ -36,7 +36,8 @@ public class HabitControllerImpl implements HabitController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/habit/add")
     public ResponseEntity<String> addV2(@RequestBody String body) {
-        logger.info("/habit/add");
+        logger.info("Start: /habit/add");
+
         HabitModel habitModel = HabitModel.parseRequest(body);
 
         habitModel.setId(habitModel.generateId());
@@ -45,26 +46,32 @@ public class HabitControllerImpl implements HabitController {
         habitModel.setEndTime(-1L);
 
         HttpStatus status = habitService.insert(habitModel);
+
+        logger.info("End: /habit/add, " + status);
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
     @PutMapping("/habit/update")
     public ResponseEntity<String> updateV2(@RequestBody String body) {
-        logger.info("/habit/update");
+        logger.info("Start: /habit/update");
 
         HabitModel habitModel = HabitModel.parseRequest(body);
 
         HttpStatus status = habitService.update(habitModel);
+
+        logger.info("End: /habit/update, " + status);
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
     @PutMapping("/habit/stop")
     public ResponseEntity<String> stopHabitV2(@RequestBody String body) {
-        logger.info("/habit/stop");
+        logger.info("Start: /habit/stop");
 
         HabitModel habitModel = HabitModel.parseRequest(body);
 
         HttpStatus status = habitService.remove(habitModel);
+
+        logger.info("End: /habit/stop, " + status);
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
@@ -110,12 +117,15 @@ public class HabitControllerImpl implements HabitController {
 
     @GetMapping("/habit/get")
     public ResponseEntity<HabitModel> get(String username, String habitId) {
+        logger.info("Start: /habit/get");
+
         HabitModel stubModel = new HabitModel();
         stubModel.setUsername(username);
         stubModel.setId(habitId);
 
         ResponseEntity<HabitModel> responseEntity = habitService.get(stubModel);
-        logger.info("/habit/get status:" + HttpStatus.OK.toString());
+
+        logger.info("End: /habit/get, " + responseEntity.getStatusCode());
         return responseEntity;
     }
 
@@ -129,17 +139,17 @@ public class HabitControllerImpl implements HabitController {
                                                       @RequestParam String from,
                                                       @RequestParam String to,
                                                       @RequestParam int offsetMillis) {
-        logger.info("username" + ":" + username);
+        logger.info("Start: /habit/by-time, username=" + username);
 
         long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.MM_DD_YYYY);
         long toTime = TimeUtils.getTimeMillis(to, TimeUtils.MM_DD_YYYY);
 
         if (fromTime <= 0 || toTime <= 0) {
-            logger.info("/habit/by-time status" + ":" + HttpStatus.BAD_REQUEST.toString());
+            logger.info("End: /habit/by-time, status=" + HttpStatus.BAD_REQUEST);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } else {
             ResponseEntity<List<DailyHabit>> responseEntity = habitService.getHabitsByDateRange(fromTime, toTime, username, "{}", offsetMillis);
-            logger.info("/habit/by-time status:" + HttpStatus.OK.toString());
+            logger.info("End: /habit/by-time status=" + HttpStatus.OK.toString());
             return responseEntity;
         }
     }
@@ -149,6 +159,8 @@ public class HabitControllerImpl implements HabitController {
                                                                        @RequestParam String mode,
                                                                        @RequestParam int dateOffset,
                                                                        @RequestParam int offsetMillis) {
+        logger.info("Start: /habit/by-time-offset, username=" + username);
+
         long current = System.currentTimeMillis();
         long timeOffset = TimeUtils.getByDateOffset(current, mode, dateOffset, TimeUtils.getCalendar(offsetMillis));
 
@@ -187,13 +199,17 @@ public class HabitControllerImpl implements HabitController {
             result.sort((o1, o2) -> Math.toIntExact(o2.getTime() - o1.getTime()));
         }
 
+        logger.info("End: /habit/by-time-offset, status=" + responseEntity.getStatusCode());
         return new ResponseEntity<>(result, responseEntity.getStatusCode());
     }
 
     @GetMapping("/habit/get-logs")
     public ResponseEntity<StatisticResponse> getLogs(String username, String habitId, int offsetMillis) {
+        logger.info("Start: /habit/get-logs, habitId=" + habitId);
+
         StatisticResponse response = habitLogService.getLogs(username, habitId, offsetMillis);
 
+        logger.info("End: /habit/get-logs, status=" + HttpStatus.OK);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

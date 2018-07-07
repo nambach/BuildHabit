@@ -3,10 +3,19 @@ package io.nambm.buildhabit.model.user;
 import io.nambm.buildhabit.entity.UserEntity;
 
 public class UserModel {
+
+    public static final String ACC_ACTIVATED = "activated";
+    public static final String ACC_PENDING = "pending";
+    public static final String ACC_BLOCKED = "blocked";
+    public static final String ACC_DEACTIVATED = "deactivated";
+
     private String username;
     private String password;
     private String name;
     private String info;
+    private String email;
+    private String role;
+    private String accountStatus;
 
     public UserModel() {
     }
@@ -50,6 +59,30 @@ public class UserModel {
         this.info = info;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(String accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
     public UserEntity toEntity() {
         UserEntity entity = new UserEntity();
 
@@ -58,6 +91,9 @@ public class UserModel {
         entity.setPassword(this.password);
         entity.setName(this.name);
         entity.setInformation(this.info);
+        entity.setEmail(this.email);
+        entity.setRole(this.role);
+        entity.setAccountStatus(this.accountStatus);
 
         return entity;
     }

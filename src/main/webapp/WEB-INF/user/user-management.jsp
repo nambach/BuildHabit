@@ -18,6 +18,8 @@
     <%@include file="../template/resource-stylesheet.jsp" %>
 
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/lib/jquery-bootgrid-1-3-1/jquery.bootgrid.min.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bootgrid.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/app.css">
 </head>
 <body>
 
@@ -119,7 +121,10 @@
                                 <tr>
                                     <th data-column-id="username" data-type="numeric">Username</th>
                                     <th data-column-id="name">Full Name</th>
-                                    <th data-column-id="info" data-order="desc">Infomation</th>
+                                    <th data-column-id="info">Information</th>
+                                    <th data-column-id="email">Email</th>
+                                    <th data-column-id="role">Role</th>
+                                    <th data-column-id="accountStatus" data-formatter="status">Status</th>
                                     <th data-column-id="commands" data-formatter="commands" data-sortable="false">Commands</th>
                                 </tr>
                                 </thead>
@@ -139,10 +144,11 @@
 
 <!-- ./Main Panel -->
 </body>
+<%@include file="static-modal.jsp"%>
 <%@include file="../template/resource-script.jsp" %>
 
 <script src="${pageContext.request.contextPath}/resources/lib/jquery-bootgrid-1-3-1/jquery.bootgrid.min.js"></script>
-<script src="${pageContext.request.contextPath}/resources/js/model/user-model.js"></script>
+<script src="${pageContext.request.contextPath}/resources/lib/jquery-bootgrid-1-3-1/jquery.bootgrid.fa.min.js"></script>
 
 
 <script src="${pageContext.request.contextPath}/resources/js/model/user-model.js"></script>

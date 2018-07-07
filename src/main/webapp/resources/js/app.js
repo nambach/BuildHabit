@@ -5,10 +5,14 @@ var callAjax = function (url, data, method, async, loading, callback, errorCallb
         type: method,
         async: async,
         success: function(result){
-            callback(result);
+            if (callback) {
+                callback(result);
+            }
         },
         error: function (xhr, status, error) {
-            errorCallback(status);
+            if (errorCallback) {
+                errorCallback(status);
+            }
         }
     });
 };

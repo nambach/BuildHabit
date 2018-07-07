@@ -13,4 +13,19 @@ public class HomeControllerImpl implements HomeController {
         return new ModelAndView("home/index");
     }
 
+    @GetMapping("/demo-geo")
+    public ModelAndView demoGeo() {
+        return new ModelAndView("demo/geolocationDemo");
+    }
+
+    @GetMapping("/demo-store")
+    public ModelAndView demoStore() {
+        return new ModelAndView("demo/storageDemo");
+    }
+
+    @GetMapping("/demo-cache")
+    public ModelAndView demoCache() {
+        return new ModelAndView("demo/html_manifest");
+    }
+
 }

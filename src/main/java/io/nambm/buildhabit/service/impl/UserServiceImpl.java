@@ -27,8 +27,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public HttpStatus update(UserModel model) {
-        return userBusiness.update(model) ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+    public HttpStatus updateNameInfo(UserModel model) {
+        return userBusiness.update(model, "name", "info") ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+    }
+
+    @Override
+    public HttpStatus updateStatus(UserModel model) {
+        return userBusiness.update(model, "accountStatus") ? HttpStatus.OK : HttpStatus.NOT_FOUND;
     }
 
     @Override

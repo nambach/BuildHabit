@@ -10,6 +10,9 @@ public class UserEntity extends TableServiceEntity {
     private String password;
     private String fullName;
     private String information;
+    private String email;
+    private String role;
+    private String accountStatus;
 
     public String getName() {
         return name;
@@ -43,6 +46,30 @@ public class UserEntity extends TableServiceEntity {
         this.information = information;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getAccountStatus() {
+        return accountStatus;
+    }
+
+    public void setAccountStatus(String accountStatus) {
+        this.accountStatus = accountStatus;
+    }
+
     public UserModel toModel() {
         UserModel model = new UserModel();
 
@@ -50,6 +77,9 @@ public class UserEntity extends TableServiceEntity {
         model.setName(this.name);
         model.setPassword(this.password);
         model.setInfo(this.information);
+        model.setEmail(this.email);
+        model.setRole(this.role);
+        model.setAccountStatus(this.accountStatus);
 
         return model;
     }

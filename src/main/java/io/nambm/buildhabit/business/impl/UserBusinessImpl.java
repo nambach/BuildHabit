@@ -8,6 +8,7 @@ import io.nambm.buildhabit.storage.UserTableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,9 +33,21 @@ public class UserBusinessImpl implements UserBusiness {
     }
 
     @Override
-    public boolean update(UserModel model) {
-        if (userTableService.get(model.getUsername()) != null) {
-            userTableService.update(model.toEntity());
+    public boolean update(UserModel model, String... properties) {
+        UserEntity currentEntity = userTableService.get(model.getUsername());
+        if (currentEntity != null) {
+            UserModel currentModel = currentEntity.toModel();
+
+            for (String property : properties) {
+                try {
+                    Field field = UserModel.class.getDeclaredField(property);
+                    field.setAccessible(true);
+                    field.set(currentModel, field.get(model));
+                } catch (NoSuchFieldException | IllegalAccessException ignored) {
+                }
+            }
+
+            userTableService.update(currentModel.toEntity());
             return true;
         } else {
             return false;

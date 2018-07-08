@@ -1,12 +1,13 @@
 package io.nambm.buildhabit.model.habit;
 
 import io.nambm.buildhabit.entity.HabitEntity;
+import io.nambm.buildhabit.model.GenericModel;
 import io.nambm.buildhabit.util.JsonUtils;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class HabitModel {
+public class HabitModel implements GenericModel<HabitEntity> {
 
     public static class PRIVATE_MODE {
         public static final String PUBLIC = "public";

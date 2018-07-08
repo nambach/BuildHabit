@@ -85,7 +85,7 @@ public class HabitControllerV1Impl implements HabitControllerV1 {
         habitModel.setUsername(username);
         habitModel.setId(habitId);
 
-        HttpStatus status = habitService.remove(habitModel);
+        HttpStatus status = habitService.stopHabit(habitModel);
         return new ResponseEntity(status);
     }
 

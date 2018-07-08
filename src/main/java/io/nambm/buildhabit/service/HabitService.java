@@ -12,7 +12,7 @@ public interface HabitService {
 
     HttpStatus update(HabitModel model);
 
-    HttpStatus remove(HabitModel model);
+    HttpStatus stopHabit(HabitModel model);
 
     ResponseEntity<HabitModel> get(HabitModel model);
 

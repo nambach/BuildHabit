@@ -69,7 +69,7 @@ public class HabitControllerImpl implements HabitController {
 
         HabitModel habitModel = HabitModel.parseRequest(body);
 
-        HttpStatus status = habitService.remove(habitModel);
+        HttpStatus status = habitService.stopHabit(habitModel);
 
         logger.info("End: /habit/stop, " + status);
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);

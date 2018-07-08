@@ -33,7 +33,7 @@ public class HabitServiceImpl implements HabitService {
 
     @Override
     public HttpStatus insert(HabitModel model) {
-        return habitBusiness.insert(model) ? HttpStatus.CREATED : HttpStatus.CONFLICT;
+        return habitBusiness.insert(model);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class HabitServiceImpl implements HabitService {
             }
 
             // commit transaction
-            habitBusiness.update(current);
+            habitBusiness.update(current, "endTime", "groupId");
             habitBusiness.insert(model);
 
             status = HttpStatus.OK;
@@ -77,16 +77,9 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
-    public HttpStatus remove(HabitModel model) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-
-        HabitModel current = habitBusiness.get(model);
-        if (current != null) {
-            current.setEndTime(System.currentTimeMillis());
-            habitBusiness.update(current);
-            status = HttpStatus.OK;
-        }
-
+    public HttpStatus stopHabit(HabitModel model) {
+        model.setEndTime(System.currentTimeMillis());
+        HttpStatus status = habitBusiness.update(model, "endTime");
         return status;
     }
 
@@ -105,7 +98,7 @@ public class HabitServiceImpl implements HabitService {
 
     @Override
     public ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions) {
-        return new ResponseEntity<>(habitBusiness.getAllHabits(username, equalConditions), HttpStatus.OK);
+        return new ResponseEntity<>(habitBusiness.getAll(username, equalConditions, null), HttpStatus.OK);
     }
 
     @Override
@@ -120,7 +113,7 @@ public class HabitServiceImpl implements HabitService {
             map.put(day, new DailyHabit(day, true));
         }
 
-        List<HabitModel> habits = habitBusiness.getAllHabits(username, equalConditions);
+        List<HabitModel> habits = habitBusiness.getAll(username, equalConditions, null);
         classifyHabits(habits, map, days, Schedule.Repetition.WEEKLY, calendar);
         classifyHabits(habits, map, days, Schedule.Repetition.MONTHLY, calendar);
         classifyHabits(habits, map, days, Schedule.Repetition.YEARLY, calendar);

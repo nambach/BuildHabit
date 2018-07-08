@@ -1,11 +1,10 @@
 package io.nambm.buildhabit.entity;
 
-import com.microsoft.azure.storage.table.TableServiceEntity;
 import io.nambm.buildhabit.model.user.UserModel;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 
 @AzureTableName("user")
-public class UserEntity extends TableServiceEntity {
+public class UserEntity extends GenericEntity<UserModel> {
     private String name;
     private String password;
     private String fullName;

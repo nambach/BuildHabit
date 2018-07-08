@@ -13,6 +13,7 @@ public class HabitEntity extends TableServiceEntity {
     private String tags;
     private String timeRange;
     private String groupId;
+    private String privateMode;
 
     public HabitEntity() {
     }
@@ -57,6 +58,14 @@ public class HabitEntity extends TableServiceEntity {
         this.groupId = groupId;
     }
 
+    public String getPrivateMode() {
+        return privateMode;
+    }
+
+    public void setPrivateMode(String privateMode) {
+        this.privateMode = privateMode;
+    }
+
     public HabitModel toModel() {
         HabitModel model = new HabitModel();
 
@@ -74,6 +83,7 @@ public class HabitEntity extends TableServiceEntity {
         model.setEndTime(JsonUtils.getValue(timeRange, "endTime", Long.class));
 
         model.setGroupId(this.groupId);
+        model.setPrivateMode(this.privateMode);
 
         return model;
     }

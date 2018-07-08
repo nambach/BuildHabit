@@ -7,6 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 
 public class HabitModel {
+
+    public static class PRIVATE_MODE {
+        public static final String PUBLIC = "public";
+        public static final String PRIVATE = "private";
+        public static final String PROTECTED = "protected";
+    }
+
     private String username;
     private String id;
 
@@ -23,6 +30,7 @@ public class HabitModel {
     private Long endTime;
 
     private String groupId;
+    private String privateMode;
 
     public HabitModel() {
     }
@@ -115,6 +123,14 @@ public class HabitModel {
         this.groupId = groupId;
     }
 
+    public String getPrivateMode() {
+        return privateMode;
+    }
+
+    public void setPrivateMode(String privateMode) {
+        this.privateMode = privateMode;
+    }
+
     public HabitEntity toEntity() {
         HabitEntity entity = new HabitEntity();
 
@@ -129,6 +145,7 @@ public class HabitModel {
                 Arrays.asList(startTime, endTime)));
 
         entity.setGroupId(this.groupId);
+        entity.setPrivateMode(this.privateMode);
 
         return entity;
     }

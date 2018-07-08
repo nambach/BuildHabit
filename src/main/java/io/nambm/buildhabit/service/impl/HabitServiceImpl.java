@@ -45,10 +45,11 @@ public class HabitServiceImpl implements HabitService {
         if (current != null) {
             // delete (stop) current habit
             current.setEndTime(System.currentTimeMillis());
-            // create new habit by setting another Id
+            // create new habit by setting another Id, and setting other attributes
             model.setId(model.generateId());
             model.setStartTime(System.currentTimeMillis());
             model.setEndTime(-1L);
+            model.setPrivateMode(current.getPrivateMode());
 
             if (current.getGroupId() == null) {
                 // create group

@@ -91,18 +91,14 @@ public class HabitControllerV1Impl implements HabitControllerV1 {
 
     @PutMapping("/check")
     public ResponseEntity checkDone(String username, String habitId, long time, int offsetMillis) {
-        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis);
 
         return new ResponseEntity(status);
     }
 
     @PutMapping("/un-check")
     public ResponseEntity undoCheckDone(String username, String habitId, long time, int offsetMillis) {
-        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis);
 
         return new ResponseEntity(status);
     }

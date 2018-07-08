@@ -3,7 +3,6 @@ package io.nambm.buildhabit.service.impl;
 import io.nambm.buildhabit.business.HabitBusiness;
 import io.nambm.buildhabit.business.HabitGroupBusiness;
 import io.nambm.buildhabit.business.HabitLogBusiness;
-import io.nambm.buildhabit.model.habit.DailyHabit;
 import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
 import io.nambm.buildhabit.model.habitlog.HabitLogModel;
@@ -13,6 +12,7 @@ import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.util.TimeUtils;
 import io.nambm.buildhabit.util.date.Day;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -35,23 +35,29 @@ public class HabitLogServiceImpl implements HabitLogService {
     }
 
     @Override
-    public boolean addLog(String username, String habitId, long finishTime, int offsetMillis) {
+    public HttpStatus addLog(String username, String habitId, long finishTime, int offsetMillis) {
 
-        Day day = Day.from(finishTime, offsetMillis);
-        HabitLogModel logModel = habitLogBusiness.get(username, habitId, day.month, day.year);
+        Day monthInfo = Day.from(finishTime, offsetMillis);
 
-        boolean result;
+        HabitLogModel stub = new HabitLogModel();
+        stub.setHabitId(habitId);
+        stub.setUsername(username);
+        stub.setMonthInfo(monthInfo);
+
+        HabitLogModel logModel = habitLogBusiness.get(stub);
+
+        HttpStatus result;
         if (logModel != null) {
             if (logModel.getTimes().indexOf(finishTime) == -1) {
                 logModel.getTimes().add(finishTime);
             }
 
-            result = habitLogBusiness.update(logModel);
+            result = habitLogBusiness.update(logModel, "times");
         } else {
             logModel = new HabitLogModel();
             logModel.setHabitId(habitId);
             logModel.setUsername(username);
-            logModel.setMonthInfo(day);
+            logModel.setMonthInfo(monthInfo);
             logModel.setTimes(Collections.singletonList(finishTime));
 
             result = habitLogBusiness.insert(logModel);
@@ -60,22 +66,29 @@ public class HabitLogServiceImpl implements HabitLogService {
     }
 
     @Override
-    public boolean deleteLog(String username, String habitId, long finishTime, int offsetMillis) {
-        Day day = Day.from(finishTime, offsetMillis);
-        HabitLogModel logModel = habitLogBusiness.get(username, habitId, day.month, day.year);
+    public HttpStatus deleteLog(String username, String habitId, long finishTime, int offsetMillis) {
+        Day monthInfo = Day.from(finishTime, offsetMillis);
 
-        boolean result;
+        HabitLogModel stub = new HabitLogModel();
+        stub.setHabitId(habitId);
+        stub.setUsername(username);
+        stub.setMonthInfo(monthInfo);
+
+        HabitLogModel logModel = habitLogBusiness.get(stub);
+
+        HttpStatus result;
         if (logModel != null) {
             logModel.getTimes().remove(finishTime);
 
             if (logModel.getTimes().isEmpty()) {
                 habitLogBusiness.remove(logModel);
-                result = true;
             } else {
-                result = habitLogBusiness.update(logModel);
+                habitLogBusiness.update(logModel, "times");
             }
+
+            result = HttpStatus.OK;
         } else {
-            result = false;
+            result = HttpStatus.NOT_FOUND;
         }
         return result;
     }

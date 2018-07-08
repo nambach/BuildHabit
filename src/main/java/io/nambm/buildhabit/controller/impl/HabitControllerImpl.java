@@ -88,9 +88,7 @@ public class HabitControllerImpl implements HabitController {
             return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, HttpStatus.BAD_REQUEST);
         }
 
-        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis);
 
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
@@ -108,9 +106,7 @@ public class HabitControllerImpl implements HabitController {
             return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, HttpStatus.BAD_REQUEST);
         }
 
-        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis);
 
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }

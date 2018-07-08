@@ -4,55 +4,18 @@ import com.microsoft.azure.storage.table.TableQuery;
 import io.nambm.buildhabit.business.HabitLogBusiness;
 import io.nambm.buildhabit.entity.HabitLogEntity;
 import io.nambm.buildhabit.model.habitlog.HabitLogModel;
-import io.nambm.buildhabit.storage.HabitLogTableService;
 import io.nambm.buildhabit.table.impl.TableServiceImpl;
 import io.nambm.buildhabit.util.date.Day;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class HabitLogBusinessImpl implements HabitLogBusiness {
-
-    private final HabitLogTableService tableService;
-
-    @Autowired
-    public HabitLogBusinessImpl(HabitLogTableService tableService) {
-        this.tableService = tableService;
-    }
-
-    @Override
-    public boolean insert(HabitLogModel model) {
-        return tableService.insert(model.toEntity());
-    }
-
-    @Override
-    public boolean update(HabitLogModel model) {
-        return tableService.update(model.toEntity());
-    }
-
-    @Override
-    public boolean remove(HabitLogModel model) {
-
-        HabitLogEntity entity = tableService.get(HabitLogModel.getPartitionKey(model), HabitLogModel.getRowKey(model));
-        if (entity != null) {
-            return tableService.remove(entity);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public HabitLogModel get(String username, String habitId, int month, int year) {
-        String rowKey = HabitLogModel.getRowKey(month, year, habitId);
-        HabitLogEntity entity = tableService.get(username, rowKey);
-
-        return entity != null
-                ? entity.toModel()
-                : null;
-    }
+public class HabitLogBusinessImpl extends GenericBusinessImpl<HabitLogModel, HabitLogEntity> implements HabitLogBusiness {
 
     @Override
     public List<Long> getLogsById(String username, String habitId) {
@@ -62,10 +25,7 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
                 TableQuery.QueryComparisons.EQUAL,
                 habitId);
 
-        List<HabitLogModel> models = tableService.getAllHabitLogs(username, "{}", filter)
-                .stream()
-                .map(HabitLogEntity::toModel)
-                .collect(Collectors.toList());
+        List<HabitLogModel> models = getAll(username, "{}", filter);
 
         List<Long> logs = new LinkedList<>();
         models.forEach(model -> logs.addAll(model.getTimes()));
@@ -77,9 +37,15 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
 
     @Override
     public List<Long> getLogsById(String username, String habitId, Day fromMonth, Day toMonth) {
+        HabitLogModel stub = new HabitLogModel();
+        stub.setHabitId(habitId);
+        stub.setUsername(username);
 
-        String fromRowKey = HabitLogModel.getRowKey(fromMonth.month, fromMonth.year, habitId);
-        String toRowKey = HabitLogModel.getRowKey(toMonth.month, toMonth.year, habitId);
+        stub.setMonthInfo(fromMonth);
+        String fromRowKey = stub.getRowKey();
+
+        stub.setMonthInfo(toMonth);
+        String toRowKey = stub.getRowKey();
 
         String fromRowKeyFilter = TableQuery.generateFilterCondition(
                 TableServiceImpl.ROW_KEY,
@@ -94,10 +60,7 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
         String rowKeyFilter = TableQuery.combineFilters(
                 fromRowKeyFilter, TableQuery.Operators.AND, toRowKeyFilter);
 
-        List<HabitLogModel> models = tableService.getAllHabitLogs(username, "{}", rowKeyFilter)
-                .stream()
-                .map(HabitLogEntity::toModel)
-                .collect(Collectors.toList());
+        List<HabitLogModel> models = getAll(username, "{}", rowKeyFilter);
 
         List<Long> logs = new LinkedList<>();
         models.forEach(model -> logs.addAll(model.getTimes()));
@@ -127,9 +90,8 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
                 toFilter
         );
 
-        Map<String, List<HabitLogModel>> map = tableService.getAllHabitLogs(username, "{}", combined)
+        Map<String, List<HabitLogModel>> map = getAll(username, "{}", combined)
                 .stream()
-                .map(HabitLogEntity::toModel)
                 .collect(Collectors.groupingBy(HabitLogModel::getHabitId));
 
         return convert(map);
@@ -141,6 +103,7 @@ public class HabitLogBusinessImpl implements HabitLogBusiness {
         map.forEach((habitId, logs) -> {
             List<Long> longs = new LinkedList<>();
             logs.forEach(model -> longs.addAll(model.getTimes()));
+            longs.sort(Long::compareTo);
 
             result.put(habitId, longs);
         });

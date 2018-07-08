@@ -4,6 +4,7 @@ import io.nambm.buildhabit.business.GenericBusiness;
 import io.nambm.buildhabit.entity.GenericEntity;
 import io.nambm.buildhabit.model.GenericModel;
 import io.nambm.buildhabit.model.submodel.BootgridResponse;
+import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.table.impl.TableServiceImpl;
 import io.nambm.buildhabit.util.GenericClassUtils;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,19 @@ public class GenericBusinessImpl<M extends GenericModel<E>, E extends GenericEnt
     private TableServiceImpl<E> tableService;
 
     private Class<M> modelClass;
+    private Class<E> entityClass;
 
     public GenericBusinessImpl() {
-        this.tableService = new TableServiceImpl<>();
-        this.modelClass = GenericClassUtils.getGenericClass(this.getClass());
+        this.modelClass = GenericClassUtils.getGenericClass(this.getClass(), 0);
+        this.entityClass = GenericClassUtils.getGenericClass(this.getClass(), 1);
+        this.tableService = new TableServiceImpl<>(entityClass, getAzureTableName());
+
+    }
+
+    private String getAzureTableName() {
+        // Get table name
+        AzureTableName tableName = entityClass.getAnnotation(AzureTableName.class);
+        return tableName.value();
     }
 
     @Override

@@ -36,6 +36,12 @@ public class TableServiceImpl<T extends GenericEntity> implements TableService<T
         setCloudTable();
     }
 
+    public TableServiceImpl(Class<T> entityClass, String tableName) {
+        this.entityClass = entityClass;
+        this.tableName = tableName;
+        setCloudTable();
+    }
+
     private void setEntityClass() {
         this.entityClass = (Class)((ParameterizedType) this.getClass().getGenericSuperclass())
                 .getActualTypeArguments()[0];

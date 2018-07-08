@@ -108,6 +108,9 @@ public class HabitLogServiceImpl implements HabitLogService {
             HabitGroupModel groupModel = habitGroupBusiness.get(rootHabit.getGroupId());
 
             for (String id : groupModel.getHabits()) {
+                // Skip when meet rootHabit again
+                if (rootHabit.getId().equals(id)) continue;
+
                 HabitModel habit = habitBusiness.get(username, id);
                 habitMembers.add(habit);
             }
@@ -136,6 +139,7 @@ public class HabitLogServiceImpl implements HabitLogService {
         }
 
         logs.sort(Comparator.comparingLong(value -> value.time));
+        habitMembers.sort((o1, o2) -> o1.getStartTime() > o2.getStartTime() ? 1 : -1);
         return new StatisticResponse(rootHabit, habitMembers, logs);
     }
 }

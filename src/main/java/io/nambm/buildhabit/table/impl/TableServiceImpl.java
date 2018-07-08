@@ -5,6 +5,7 @@ import com.microsoft.azure.storage.ResultContinuation;
 import com.microsoft.azure.storage.ResultSegment;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.*;
+import io.nambm.buildhabit.entity.GenericEntity;
 import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.table.TableService;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
@@ -19,7 +20,7 @@ import java.util.*;
 import static io.nambm.buildhabit.table.constant.Constants.AZURE_ACC_KEY;
 import static io.nambm.buildhabit.table.constant.Constants.AZURE_ACC_NAME;
 
-public class TableServiceImpl<T extends TableServiceEntity> implements TableService<T> {
+public class TableServiceImpl<T extends GenericEntity> implements TableService<T> {
 
     public static final String PARTITION_KEY = "PartitionKey";
     public static final String ROW_KEY = "RowKey";
@@ -32,6 +33,12 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
     public TableServiceImpl() {
         setEntityClass();
         setTableName();
+        setCloudTable();
+    }
+
+    public TableServiceImpl(Class<T> entityClass, String tableName) {
+        this.entityClass = entityClass;
+        this.tableName = tableName;
         setCloudTable();
     }
 

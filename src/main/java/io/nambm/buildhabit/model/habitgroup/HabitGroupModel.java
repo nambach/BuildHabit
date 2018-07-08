@@ -2,10 +2,11 @@ package io.nambm.buildhabit.model.habitgroup;
 
 import com.google.gson.Gson;
 import io.nambm.buildhabit.entity.HabitGroupEntity;
+import io.nambm.buildhabit.model.GenericModel;
 
 import java.util.List;
 
-public class HabitGroupModel {
+public class HabitGroupModel implements GenericModel<HabitGroupEntity> {
 
     private String groupId;
     private String rootHabit;

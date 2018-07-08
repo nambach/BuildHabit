@@ -1,8 +1,9 @@
 package io.nambm.buildhabit.model.user;
 
 import io.nambm.buildhabit.entity.UserEntity;
+import io.nambm.buildhabit.model.GenericModel;
 
-public class UserModel {
+public class UserModel implements GenericModel<UserEntity> {
 
     public static final String ACC_ACTIVATED = "activated";
     public static final String ACC_PENDING = "pending";
@@ -81,6 +82,16 @@ public class UserModel {
 
     public void setAccountStatus(String accountStatus) {
         this.accountStatus = accountStatus;
+    }
+
+    @Override
+    public String getPartitionKey() {
+        return this.username;
+    }
+
+    @Override
+    public String getRowKey() {
+        return this.username;
     }
 
     public UserEntity toEntity() {

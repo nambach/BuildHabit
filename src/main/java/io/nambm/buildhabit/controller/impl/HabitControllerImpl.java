@@ -7,6 +7,7 @@ import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habitlog.StatisticResponse;
 import io.nambm.buildhabit.service.HabitLogService;
 import io.nambm.buildhabit.service.HabitService;
+import io.nambm.buildhabit.service.TagService;
 import io.nambm.buildhabit.util.JsonUtils;
 import io.nambm.buildhabit.util.TimeUtils;
 import org.slf4j.Logger;
@@ -26,11 +27,13 @@ public class HabitControllerImpl implements HabitController {
     private Logger logger = LoggerFactory.getLogger(HabitControllerImpl.class);
     private final HabitService habitService;
     private final HabitLogService habitLogService;
+    private final TagService tagService;
 
     @Autowired
-    public HabitControllerImpl(HabitService habitService, HabitLogService habitLogService) {
+    public HabitControllerImpl(HabitService habitService, HabitLogService habitLogService, TagService tagService) {
         this.habitService = habitService;
         this.habitLogService = habitLogService;
+        this.tagService = tagService;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -108,6 +111,25 @@ public class HabitControllerImpl implements HabitController {
 
         HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis);
 
+        return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
+    }
+
+    @PutMapping("/habit/edit-tags")
+    public ResponseEntity<String> editTags(String body) {
+        logger.info("Start: /habit/edit-tags");
+        HttpStatus status = HttpStatus.OK;
+
+        String id = JsonUtils.getValue(body, "id");
+        String action = JsonUtils.getValue(body, "action");
+        List<String> tagList = JsonUtils.getArray(JsonUtils.getValue(body, "tags"), String.class);
+
+        if ("add".equalsIgnoreCase(action)) {
+            status = tagService.addTagsToHabit(null, id, tagList);
+        } else if ("remove".equalsIgnoreCase(action)) {
+            status = tagService.removeTagsFromHabit(null, id, tagList);
+        }
+
+        logger.info("End: /habit/edit-tags, " + status);
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
@@ -207,5 +229,16 @@ public class HabitControllerImpl implements HabitController {
 
         logger.info("End: /habit/get-logs, status=" + HttpStatus.OK);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/habit/get-by-tag")
+    public ResponseEntity<List<HabitModel>> getHabitsByTag(String username, String tagName) {
+        logger.info("Start: /habit/get-by-tag, username=" + username + ", tagName=" + tagName);
+
+        if ("null".equalsIgnoreCase(username)) username = null;
+        List<HabitModel> models = habitService.getByTags(username, tagName);
+
+        logger.info("End: /habit/get-by-tag, status=" + HttpStatus.OK);
+        return new ResponseEntity<>(models, HttpStatus.OK);
     }
 }

@@ -1,6 +1,5 @@
 package io.nambm.buildhabit.service.impl;
 
-import com.microsoft.azure.storage.table.TableQuery;
 import io.nambm.buildhabit.business.HabitBusiness;
 import io.nambm.buildhabit.business.TagBusiness;
 import io.nambm.buildhabit.model.habit.HabitModel;
@@ -10,8 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static io.nambm.buildhabit.table.util.QueryUtils.getEqualFilter;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -41,7 +44,7 @@ public class TagServiceImpl implements TagService {
 
         // Get current tags
         List<String> currentTags = tagBusiness
-                .getAll(null, null, getQueryFilter("HabitId", tagModel.getHabitId()))
+                .getAll(null, null, getEqualFilter("HabitId", tagModel.getHabitId()))
                 .stream()
                 .map(TagModel::getTagName)
                 .collect(Collectors.toList());
@@ -68,21 +71,95 @@ public class TagServiceImpl implements TagService {
         return HttpStatus.OK;
     }
 
-    private static String getQueryFilter(String columnName, String value) {
-        return TableQuery.generateFilterCondition(
-                columnName,
-                TableQuery.QueryComparisons.EQUAL,
-                value
-        );
-    }
-
     @Override
     public HttpStatus addTagsToHabit(String username, String habitId, List<String> tagNames) {
-        return null;
+        // Return if having no tag
+        if (tagNames.isEmpty()) {
+            return HttpStatus.OK;
+        }
+
+        HabitModel habitModel = username == null
+                ? habitBusiness.get(habitId)
+                : habitBusiness.get(username, habitId);
+
+        if (habitModel == null) {
+            return HttpStatus.NOT_FOUND;
+        }
+
+        // Add tags into habit
+        addAllDistinct(habitModel.getTags(), tagNames);
+        habitBusiness.update(habitModel, "tags");
+
+        // Prepare tag sample to insert
+        TagModel tagModel = new TagModel();
+        tagModel.setStatus(TagModel.Status.PENDING);
+        tagModel.setUsername(habitModel.getUsername());
+        tagModel.setPrivateMode(habitModel.getPrivateMode());
+        tagModel.setHabitId(habitModel.getId());
+
+        // Get current tag entries
+        List<TagModel> currentTags = tagBusiness
+                .getAll(null, null, getEqualFilter("HabitId", habitId));
+
+        // Insert new tags
+        for (String tagName : tagNames) {
+            if (currentTags.stream().anyMatch(tag -> tag.getTagName().equals(tagName))) {
+                continue;
+            }
+
+            tagModel.setTagName(tagName);
+            tagBusiness.insert(tagModel);
+        }
+
+        return HttpStatus.OK;
+    }
+
+    private <T> void addAllDistinct(List<T> container, List<T> elements) {
+        Set<T> set = new HashSet<>(container);
+        set.addAll(elements);
+
+        container.clear();
+        container.addAll(set);
     }
 
     @Override
     public HttpStatus removeTagsFromHabit(String username, String habitId, List<String> tagNames) {
-        return null;
+        // Return if having no tag
+        if (tagNames.isEmpty()) {
+            return HttpStatus.OK;
+        }
+
+        HabitModel habitModel = username == null
+                ? habitBusiness.get(habitId)
+                : habitBusiness.get(username, habitId);
+
+        if (habitModel == null) {
+            return HttpStatus.NOT_FOUND;
+        }
+
+        // Remove tags into habit
+        habitModel.getTags().removeAll(tagNames);
+        habitBusiness.update(habitModel, "tags");
+
+        // Prepare tag sample to remove
+        TagModel tagModel = new TagModel();
+        tagModel.setStatus(TagModel.Status.PENDING);
+        tagModel.setUsername(habitModel.getUsername());
+        tagModel.setPrivateMode(habitModel.getPrivateMode());
+        tagModel.setHabitId(habitModel.getId());
+
+        // Get current tag entries
+        List<TagModel> currentTags = tagBusiness
+                .getAll(null, null, getEqualFilter("HabitId", habitId));
+
+        // Remove target tags
+        for (String tagName : tagNames) {
+            if (currentTags.stream().anyMatch(tag -> tag.getTagName().equals(tagName))) {
+                tagModel.setTagName(tagName);
+                tagBusiness.remove(tagModel);
+            }
+        }
+
+        return HttpStatus.OK;
     }
 }

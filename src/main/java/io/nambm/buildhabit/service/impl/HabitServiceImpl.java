@@ -2,9 +2,11 @@ package io.nambm.buildhabit.service.impl;
 
 import io.nambm.buildhabit.business.HabitBusiness;
 import io.nambm.buildhabit.business.HabitLogBusiness;
+import io.nambm.buildhabit.business.TagBusiness;
 import io.nambm.buildhabit.constant.AppConstant;
 import io.nambm.buildhabit.model.habit.*;
 import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
+import io.nambm.buildhabit.model.tag.TagModel;
 import io.nambm.buildhabit.service.HabitGroupService;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.service.TagService;
@@ -18,19 +20,23 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.nambm.buildhabit.table.util.QueryUtils.getEqualFilter;
+
 @Service
 public class HabitServiceImpl implements HabitService {
 
     private final HabitBusiness habitBusiness;
     private final HabitLogBusiness habitLogBusiness;
     private final HabitGroupService habitGroupService;
+    private final TagBusiness tagBusiness;
     private final TagService tagService;
 
     @Autowired
-    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness, HabitGroupService habitGroupService, TagService tagService) {
+    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness, HabitGroupService habitGroupService, TagBusiness tagBusiness, TagService tagService) {
         this.habitBusiness = habitBusiness;
         this.habitLogBusiness = habitLogBusiness;
         this.habitGroupService = habitGroupService;
+        this.tagBusiness = tagBusiness;
         this.tagService = tagService;
     }
 
@@ -105,6 +111,28 @@ public class HabitServiceImpl implements HabitService {
         } else {
             return new ResponseEntity<>(model, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @Override
+    public List<HabitModel> getByTags(String username, String tagName) {
+        List<HabitModel> models = new LinkedList<>();
+
+        TagModel wrapper = new TagModel();
+        wrapper.setUsername(username);
+        wrapper.setTagName(tagName);
+
+        String filter = username != null
+                ? getEqualFilter("Username", username)
+                : null;
+
+        List<TagModel> tagModels = tagBusiness.getAll(wrapper.getPartitionKey(), null, filter);
+        for (TagModel tagModel : tagModels) {
+            HabitModel habitModel = habitBusiness.get(tagModel.getUsername(), tagModel.getHabitId());
+
+            models.add(habitModel);
+        }
+
+        return models;
     }
 
     @Override

@@ -15,4 +15,12 @@ public class HabitBusinessImpl extends GenericBusinessImpl<HabitModel, HabitEnti
         model.setUsername(username);
         return get(model);
     }
+
+    @Override
+    public HabitModel get(String habitId) {
+        HabitModel model = new HabitModel();
+        model.setId(habitId);
+
+        return get(model, true);
+    }
 }

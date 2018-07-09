@@ -16,6 +16,8 @@ public interface HabitService {
 
     ResponseEntity<HabitModel> get(HabitModel model);
 
+    List<HabitModel> getByTags(String username, String tagName);
+
     ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions);
 
     ResponseEntity<List<DailyHabit>> getHabitsByDateRange(long from, long to, String username, String equalConditions, int offsetMillis);

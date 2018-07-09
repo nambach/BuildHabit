@@ -7,7 +7,7 @@ import io.nambm.buildhabit.util.JsonUtils;
 import java.util.Arrays;
 import java.util.List;
 
-public class HabitModel implements GenericModel<HabitEntity> {
+public class HabitModel extends GenericModel<HabitEntity> {
 
     public static class PRIVATE_MODE {
         public static final String PUBLIC = "public";

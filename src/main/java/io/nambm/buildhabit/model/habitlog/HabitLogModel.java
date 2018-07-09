@@ -7,7 +7,7 @@ import io.nambm.buildhabit.util.date.Day;
 
 import java.util.List;
 
-public class HabitLogModel implements GenericModel<HabitLogEntity> {
+public class HabitLogModel extends GenericModel<HabitLogEntity> {
 
     // Main info
     private List<Long> times;

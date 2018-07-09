@@ -14,6 +14,8 @@ public interface GenericBusiness<T> {
 
     T get(T model);
 
+    T get(T model, boolean searchByRowKey);
+
     List<T> getAll(String partitionKey, String equalConditions, String tableServiceQueryFilter);
 
     BootgridResponse<T> getPage(int rowCount, int currentPage, String partitionKey, String tableServiceQueryFilter);

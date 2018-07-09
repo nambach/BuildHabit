@@ -3,7 +3,7 @@ package io.nambm.buildhabit.model.user;
 import io.nambm.buildhabit.entity.UserEntity;
 import io.nambm.buildhabit.model.GenericModel;
 
-public class UserModel implements GenericModel<UserEntity> {
+public class UserModel extends GenericModel<UserEntity> {
 
     public static final String ACC_ACTIVATED = "activated";
     public static final String ACC_PENDING = "pending";

@@ -90,6 +90,22 @@ public class GenericBusinessImpl<M extends GenericModel<E>, E extends GenericEnt
     }
 
     @Override
+    public M get(M model, boolean searchByRowKey) {
+        E entity;
+        if (searchByRowKey) {
+            entity = tableService.getEntity(model.getRowKey());
+        } else {
+            entity = tableService.getEntity(model.getPartitionKey(), model.getRowKey());
+        }
+
+        if (entity != null) {
+            return entity.toModel();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public List<M> getAll(String partitionKey, String equalConditions, String tableServiceQueryFilter) {
         List<E> entities = tableService.searchAll(partitionKey, equalConditions, tableServiceQueryFilter);
         if (entities != null) {

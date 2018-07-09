@@ -6,7 +6,7 @@ import io.nambm.buildhabit.model.GenericModel;
 
 import java.util.List;
 
-public class HabitGroupModel implements GenericModel<HabitGroupEntity> {
+public class HabitGroupModel extends GenericModel<HabitGroupEntity> {
 
     private String groupId;
     private String rootHabit;

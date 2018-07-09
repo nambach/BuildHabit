@@ -190,6 +190,45 @@ public class TableServiceImpl<T extends GenericEntity> implements TableService<T
         }
     }
 
+    /**
+     * Get an entity (only if rowKeys are distinct!!)
+     *
+     * @param rowKey entity's rowKey
+     * @return
+     */
+    @Override
+    public T getEntity(String rowKey) {
+        try {
+
+            // Prepare partitionKey filter
+            String rowKeyFilter = TableQuery.generateFilterCondition(
+                    ROW_KEY,
+                    TableQuery.QueryComparisons.EQUAL,
+                    rowKey);
+
+            // Specify a partition query
+            TableQuery<T> rowKeyQuery =
+                    TableQuery.from(entityClass)
+                            .where(rowKeyFilter);
+
+            // Collect entities.
+            List<T> list = new ArrayList<>();
+            ResultContinuation token = null;
+
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(rowKeyQuery, token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
+            return !list.isEmpty() ? list.get(0) : null;
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @Override
     public List<T> searchAll() {
         try {

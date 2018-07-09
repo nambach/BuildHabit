@@ -10,6 +10,7 @@ import io.nambm.buildhabit.util.GenericClassUtils;
 import org.springframework.http.HttpStatus;
 
 import java.lang.reflect.Field;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -111,7 +112,7 @@ public class GenericBusinessImpl<M extends GenericModel<E>, E extends GenericEnt
         if (entities != null) {
             return entities.stream().map(E::toModel).collect(Collectors.toList());
         } else {
-            return null;
+            return new LinkedList<>();
         }
     }
 

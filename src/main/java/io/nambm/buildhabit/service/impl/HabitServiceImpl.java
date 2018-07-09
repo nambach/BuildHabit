@@ -7,6 +7,7 @@ import io.nambm.buildhabit.model.habit.*;
 import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
 import io.nambm.buildhabit.service.HabitGroupService;
 import io.nambm.buildhabit.service.HabitService;
+import io.nambm.buildhabit.service.TagService;
 import io.nambm.buildhabit.util.TimeUtils;
 import io.nambm.buildhabit.util.date.Day;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,17 +24,24 @@ public class HabitServiceImpl implements HabitService {
     private final HabitBusiness habitBusiness;
     private final HabitLogBusiness habitLogBusiness;
     private final HabitGroupService habitGroupService;
+    private final TagService tagService;
 
     @Autowired
-    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness, HabitGroupService habitGroupService) {
+    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness, HabitGroupService habitGroupService, TagService tagService) {
         this.habitBusiness = habitBusiness;
         this.habitLogBusiness = habitLogBusiness;
         this.habitGroupService = habitGroupService;
+        this.tagService = tagService;
     }
 
     @Override
     public HttpStatus insert(HabitModel model) {
-        return habitBusiness.insert(model);
+
+        // ID is always distinct (by time millis), hence never conflict
+        habitBusiness.insert(model);
+        tagService.importTagsFrom(model);
+
+        return HttpStatus.CREATED;
     }
 
     @Override
@@ -69,6 +77,9 @@ public class HabitServiceImpl implements HabitService {
             // commit transaction
             habitBusiness.update(current, "endTime", "groupId");
             habitBusiness.insert(model);
+
+            tagService.importTagsFrom(current);
+            tagService.importTagsFrom(model);
 
             status = HttpStatus.OK;
         }

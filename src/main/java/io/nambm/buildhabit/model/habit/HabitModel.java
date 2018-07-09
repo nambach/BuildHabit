@@ -31,7 +31,7 @@ public class HabitModel extends GenericModel<HabitEntity> {
     private Long endTime;
 
     private String groupId;
-    private String privateMode;
+    private String privateMode = PRIVATE_MODE.PRIVATE;
 
     public HabitModel() {
     }

@@ -12,4 +12,6 @@ public interface TagService {
     HttpStatus addTagsToHabit(String username, String habitId, List<String> tagNames);
 
     HttpStatus removeTagsFromHabit(String username, String habitId, List<String> tagNames);
+
+    List<String> getAllTags(String username);
 }

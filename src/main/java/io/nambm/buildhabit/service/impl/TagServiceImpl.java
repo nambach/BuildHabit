@@ -5,6 +5,7 @@ import io.nambm.buildhabit.business.TagBusiness;
 import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.tag.TagModel;
 import io.nambm.buildhabit.service.TagService;
+import io.nambm.buildhabit.table.util.QueryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -161,5 +162,14 @@ public class TagServiceImpl implements TagService {
         }
 
         return HttpStatus.OK;
+    }
+
+    @Override
+    public List<String> getAllTags(String username) {
+        List<TagModel> tags = tagBusiness.getAll(null, null, QueryUtils.getEqualFilter("Username", username));
+        return tags.stream()
+                .map(TagModel::getTagName)
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

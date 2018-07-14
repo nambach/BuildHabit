@@ -2,8 +2,11 @@ package io.nambm.buildhabit.controller.impl;
 
 import io.nambm.buildhabit.controller.TemplateController;
 import io.nambm.buildhabit.model.habit.HabitModel;
+import io.nambm.buildhabit.model.tag.TagHabitsResponse;
+import io.nambm.buildhabit.model.tag.TagModel;
 import io.nambm.buildhabit.service.HabitLogService;
 import io.nambm.buildhabit.service.HabitService;
+import io.nambm.buildhabit.service.TagService;
 import io.nambm.buildhabit.table.BlobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class TemplateControllerImpl implements TemplateController {
@@ -27,12 +32,14 @@ public class TemplateControllerImpl implements TemplateController {
 
     private final HabitService habitService;
     private final HabitLogService habitLogService;
+    private final TagService tagService;
     private final BlobService blobService;
 
     @Autowired
-    public TemplateControllerImpl(HabitService habitService, HabitLogService habitLogService, BlobService blobService) {
+    public TemplateControllerImpl(HabitService habitService, HabitLogService habitLogService, TagService tagService, BlobService blobService) {
         this.habitService = habitService;
         this.habitLogService = habitLogService;
+        this.tagService = tagService;
         this.blobService = blobService;
     }
 
@@ -55,5 +62,28 @@ public class TemplateControllerImpl implements TemplateController {
         } catch (UnsupportedEncodingException e) {
             return new ResponseEntity<>("", HttpStatus.NO_CONTENT);
         }
+    }
+
+    @GetMapping("/suggestions")
+    public ResponseEntity<List<TagHabitsResponse>> getSuggestions() {
+        List<TagHabitsResponse> responses = new LinkedList<>();
+
+        List<String> tagNames = tagService.getAllTags(TEMPLATE);
+        List<HabitModel> habitModels = habitService.getAllHabits(TEMPLATE, null).getBody();
+
+        for (String tagName : tagNames) {
+            TagHabitsResponse response = new TagHabitsResponse();
+            response.setTagName(tagName);
+
+            List<HabitModel> habits = habitModels
+                    .stream()
+                    .filter(habitModel -> habitModel.getTags().contains(tagName))
+                    .collect(Collectors.toList());
+            response.setHabits(habits);
+
+            responses.add(response);
+        }
+
+        return new ResponseEntity<>(responses, HttpStatus.OK);
     }
 }

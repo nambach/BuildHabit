@@ -2,7 +2,6 @@ package io.nambm.buildhabit.entity;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.microsoft.azure.storage.table.TableServiceEntity;
 import io.nambm.buildhabit.model.habitlog.HabitLogModel;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.util.date.Day;
@@ -10,7 +9,7 @@ import io.nambm.buildhabit.util.date.Day;
 import java.util.List;
 
 @AzureTableName("habitlog")
-public class HabitLogEntity extends TableServiceEntity {
+public class HabitLogEntity extends GenericEntity<HabitLogModel> {
 
     // PartitionKey = [username]
     // RowKey = [month][year]_[habitId]

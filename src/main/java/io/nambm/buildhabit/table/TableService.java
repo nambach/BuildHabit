@@ -18,6 +18,8 @@ public interface TableService<T> {
 
     T getEntity(String partitionKey, String rowKey);
 
+    T getEntity(String rowKey);
+
     List<T> searchAll();
 
     List<T> searchAll(String partitionKey);

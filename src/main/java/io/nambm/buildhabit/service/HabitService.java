@@ -12,9 +12,11 @@ public interface HabitService {
 
     HttpStatus update(HabitModel model);
 
-    HttpStatus remove(HabitModel model);
+    HttpStatus stopHabit(HabitModel model);
 
     ResponseEntity<HabitModel> get(HabitModel model);
+
+    List<HabitModel> getByTags(String username, String tagName);
 
     ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions);
 

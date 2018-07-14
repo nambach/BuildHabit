@@ -1,12 +1,11 @@
 package io.nambm.buildhabit.entity;
 
-import com.microsoft.azure.storage.table.TableServiceEntity;
 import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.util.JsonUtils;
 
 @AzureTableName("habitgroup")
-public class HabitGroupEntity extends TableServiceEntity {
+public class HabitGroupEntity extends GenericEntity<HabitGroupModel> {
 
     private String groupId;
     private String rootHabit;

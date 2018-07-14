@@ -1,8 +1,6 @@
 package io.nambm.buildhabit.service.impl;
 
-import io.nambm.buildhabit.business.HabitBusiness;
 import io.nambm.buildhabit.business.HabitGroupBusiness;
-import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
 import io.nambm.buildhabit.service.HabitGroupService;
 import org.springframework.beans.factory.annotation.Autowired;

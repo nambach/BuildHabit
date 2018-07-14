@@ -5,6 +5,7 @@ import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habit.Schedule;
 import io.nambm.buildhabit.service.HabitLogService;
 import io.nambm.buildhabit.service.HabitService;
+import io.nambm.buildhabit.service.TagService;
 import io.nambm.buildhabit.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/habit/v1")
 public class HabitControllerV1Impl implements HabitControllerV1 {
@@ -20,11 +23,13 @@ public class HabitControllerV1Impl implements HabitControllerV1 {
     private Logger logger = LoggerFactory.getLogger(HabitControllerImpl.class);
     private final HabitService habitService;
     private final HabitLogService habitLogService;
+    private final TagService tagService;
 
     @Autowired
-    public HabitControllerV1Impl(HabitService habitService, HabitLogService habitLogService) {
+    public HabitControllerV1Impl(HabitService habitService, HabitLogService habitLogService, TagService tagService) {
         this.habitService = habitService;
         this.habitLogService = habitLogService;
+        this.tagService = tagService;
     }
 
     @ResponseStatus(HttpStatus.CREATED)
@@ -78,6 +83,21 @@ public class HabitControllerV1Impl implements HabitControllerV1 {
         return new ResponseEntity(status);
     }
 
+    @PutMapping("/edit-tags")
+    public ResponseEntity editTags(String id, String tags, String action) {
+        logger.info("/habit/v1/edit-tags");
+        HttpStatus status = HttpStatus.OK;
+        List<String> tagList = JsonUtils.getArray(tags, String.class);
+
+        if ("add".equalsIgnoreCase(action)) {
+            status = tagService.addTagsToHabit(null, id, tagList);
+        } else if ("remove".equalsIgnoreCase(action)) {
+            status = tagService.removeTagsFromHabit(null, id, tagList);
+        }
+
+        return new ResponseEntity(status);
+    }
+
     @PutMapping("/stop")
     public ResponseEntity stopHabit(@RequestParam String habitId,
                                     @RequestParam String username) {
@@ -85,24 +105,20 @@ public class HabitControllerV1Impl implements HabitControllerV1 {
         habitModel.setUsername(username);
         habitModel.setId(habitId);
 
-        HttpStatus status = habitService.remove(habitModel);
+        HttpStatus status = habitService.stopHabit(habitModel);
         return new ResponseEntity(status);
     }
 
     @PutMapping("/check")
     public ResponseEntity checkDone(String username, String habitId, long time, int offsetMillis) {
-        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        HttpStatus status = habitLogService.addLog(username, habitId, time, offsetMillis);
 
         return new ResponseEntity(status);
     }
 
     @PutMapping("/un-check")
     public ResponseEntity undoCheckDone(String username, String habitId, long time, int offsetMillis) {
-        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        HttpStatus status = habitLogService.deleteLog(username, habitId, time, offsetMillis);
 
         return new ResponseEntity(status);
     }

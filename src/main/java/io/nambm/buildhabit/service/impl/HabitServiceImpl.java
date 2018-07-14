@@ -2,11 +2,14 @@ package io.nambm.buildhabit.service.impl;
 
 import io.nambm.buildhabit.business.HabitBusiness;
 import io.nambm.buildhabit.business.HabitLogBusiness;
+import io.nambm.buildhabit.business.TagBusiness;
 import io.nambm.buildhabit.constant.AppConstant;
 import io.nambm.buildhabit.model.habit.*;
 import io.nambm.buildhabit.model.habitgroup.HabitGroupModel;
+import io.nambm.buildhabit.model.tag.TagModel;
 import io.nambm.buildhabit.service.HabitGroupService;
 import io.nambm.buildhabit.service.HabitService;
+import io.nambm.buildhabit.service.TagService;
 import io.nambm.buildhabit.util.TimeUtils;
 import io.nambm.buildhabit.util.date.Day;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,23 +20,34 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.nambm.buildhabit.table.util.QueryUtils.getEqualFilter;
+
 @Service
 public class HabitServiceImpl implements HabitService {
 
     private final HabitBusiness habitBusiness;
     private final HabitLogBusiness habitLogBusiness;
     private final HabitGroupService habitGroupService;
+    private final TagBusiness tagBusiness;
+    private final TagService tagService;
 
     @Autowired
-    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness, HabitGroupService habitGroupService) {
+    public HabitServiceImpl(HabitBusiness habitBusiness, HabitLogBusiness habitLogBusiness, HabitGroupService habitGroupService, TagBusiness tagBusiness, TagService tagService) {
         this.habitBusiness = habitBusiness;
         this.habitLogBusiness = habitLogBusiness;
         this.habitGroupService = habitGroupService;
+        this.tagBusiness = tagBusiness;
+        this.tagService = tagService;
     }
 
     @Override
     public HttpStatus insert(HabitModel model) {
-        return habitBusiness.insert(model) ? HttpStatus.CREATED : HttpStatus.CONFLICT;
+
+        // ID is always distinct (by time millis), hence never conflict
+        habitBusiness.insert(model);
+        tagService.importTagsFrom(model);
+
+        return HttpStatus.CREATED;
     }
 
     @Override
@@ -45,10 +59,11 @@ public class HabitServiceImpl implements HabitService {
         if (current != null) {
             // delete (stop) current habit
             current.setEndTime(System.currentTimeMillis());
-            // create new habit by setting another Id
+            // create new habit by setting another Id, and setting other attributes
             model.setId(model.generateId());
             model.setStartTime(System.currentTimeMillis());
             model.setEndTime(-1L);
+            model.setPrivateMode(current.getPrivateMode());
 
             if (current.getGroupId() == null) {
                 // create group
@@ -66,8 +81,11 @@ public class HabitServiceImpl implements HabitService {
             }
 
             // commit transaction
-            habitBusiness.update(current);
+            habitBusiness.update(current, "endTime", "groupId");
             habitBusiness.insert(model);
+
+            tagService.importTagsFrom(current);
+            tagService.importTagsFrom(model);
 
             status = HttpStatus.OK;
         }
@@ -76,16 +94,9 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
-    public HttpStatus remove(HabitModel model) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
-
-        HabitModel current = habitBusiness.get(model);
-        if (current != null) {
-            current.setEndTime(System.currentTimeMillis());
-            habitBusiness.update(current);
-            status = HttpStatus.OK;
-        }
-
+    public HttpStatus stopHabit(HabitModel model) {
+        model.setEndTime(System.currentTimeMillis());
+        HttpStatus status = habitBusiness.update(model, "endTime");
         return status;
     }
 
@@ -103,8 +114,30 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
+    public List<HabitModel> getByTags(String username, String tagName) {
+        List<HabitModel> models = new LinkedList<>();
+
+        TagModel wrapper = new TagModel();
+        wrapper.setUsername(username);
+        wrapper.setTagName(tagName);
+
+        String filter = username != null
+                ? getEqualFilter("Username", username)
+                : null;
+
+        List<TagModel> tagModels = tagBusiness.getAll(wrapper.getPartitionKey(), null, filter);
+        for (TagModel tagModel : tagModels) {
+            HabitModel habitModel = habitBusiness.get(tagModel.getUsername(), tagModel.getHabitId());
+
+            models.add(habitModel);
+        }
+
+        return models;
+    }
+
+    @Override
     public ResponseEntity<List<HabitModel>> getAllHabits(String username, String equalConditions) {
-        return new ResponseEntity<>(habitBusiness.getAllHabits(username, equalConditions), HttpStatus.OK);
+        return new ResponseEntity<>(habitBusiness.getAll(username, equalConditions, null), HttpStatus.OK);
     }
 
     @Override
@@ -119,7 +152,7 @@ public class HabitServiceImpl implements HabitService {
             map.put(day, new DailyHabit(day, true));
         }
 
-        List<HabitModel> habits = habitBusiness.getAllHabits(username, equalConditions);
+        List<HabitModel> habits = habitBusiness.getAll(username, equalConditions, null);
         classifyHabits(habits, map, days, Schedule.Repetition.WEEKLY, calendar);
         classifyHabits(habits, map, days, Schedule.Repetition.MONTHLY, calendar);
         classifyHabits(habits, map, days, Schedule.Repetition.YEARLY, calendar);

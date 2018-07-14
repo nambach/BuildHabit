@@ -2,11 +2,12 @@ package io.nambm.buildhabit.model.habitlog;
 
 import com.google.gson.Gson;
 import io.nambm.buildhabit.entity.HabitLogEntity;
+import io.nambm.buildhabit.model.GenericModel;
 import io.nambm.buildhabit.util.date.Day;
 
 import java.util.List;
 
-public class HabitLogModel {
+public class HabitLogModel extends GenericModel<HabitLogEntity> {
 
     // Main info
     private List<Long> times;
@@ -51,12 +52,22 @@ public class HabitLogModel {
         this.habitId = habitId;
     }
 
+    @Override
+    public String getPartitionKey() {
+        return this.username;
+    }
+
+    @Override
+    public String getRowKey() {
+        return this.habitId + "_" + getMonthInfo(this.monthInfo);
+    }
+
     public HabitLogEntity toEntity() {
         HabitLogEntity entity = new HabitLogEntity();
 
         // Set entity ID
-        entity.setPartitionKey(getPartitionKey(this));
-        entity.setRowKey(getRowKey(this));
+        entity.setPartitionKey(getPartitionKey());
+        entity.setRowKey(getRowKey());
 
         // Set main info
         entity.setTimes(new Gson().toJson(times));
@@ -67,22 +78,6 @@ public class HabitLogModel {
         entity.setUsername(username);
 
         return entity;
-    }
-
-    public static String getRowKey(int month, int year, String habitId) {
-        return habitId + "_" + getMonthInfo(month, year);
-    }
-
-    public static String getRowKey(HabitLogModel model) {
-        return model.habitId + "_" + getMonthInfo(model.monthInfo);
-    }
-
-    public static String getPartitionKey(HabitLogModel model) {
-        return model.getUsername();
-    }
-
-    private static String getMonthInfo(int month, int year) {
-        return String.format("%04d-%02d", year, month);
     }
 
     public static String getMonthInfo(Day day) {

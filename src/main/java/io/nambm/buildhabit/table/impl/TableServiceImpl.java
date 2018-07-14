@@ -5,6 +5,7 @@ import com.microsoft.azure.storage.ResultContinuation;
 import com.microsoft.azure.storage.ResultSegment;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.*;
+import io.nambm.buildhabit.entity.GenericEntity;
 import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.table.TableService;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
@@ -19,7 +20,7 @@ import java.util.*;
 import static io.nambm.buildhabit.table.constant.Constants.AZURE_ACC_KEY;
 import static io.nambm.buildhabit.table.constant.Constants.AZURE_ACC_NAME;
 
-public class TableServiceImpl<T extends TableServiceEntity> implements TableService<T> {
+public class TableServiceImpl<T extends GenericEntity> implements TableService<T> {
 
     public static final String PARTITION_KEY = "PartitionKey";
     public static final String ROW_KEY = "RowKey";
@@ -32,6 +33,12 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
     public TableServiceImpl() {
         setEntityClass();
         setTableName();
+        setCloudTable();
+    }
+
+    public TableServiceImpl(Class<T> entityClass, String tableName) {
+        this.entityClass = entityClass;
+        this.tableName = tableName;
         setCloudTable();
     }
 
@@ -176,6 +183,45 @@ public class TableServiceImpl<T extends TableServiceEntity> implements TableServ
 
             // Retrieve the entity with partition key and row key
             return cloudTable.execute(retrieveOperation).getResultAsType();
+        } catch (Exception e) {
+            // Output the stack trace.
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Get an entity (only if rowKeys are distinct!!)
+     *
+     * @param rowKey entity's rowKey
+     * @return
+     */
+    @Override
+    public T getEntity(String rowKey) {
+        try {
+
+            // Prepare partitionKey filter
+            String rowKeyFilter = TableQuery.generateFilterCondition(
+                    ROW_KEY,
+                    TableQuery.QueryComparisons.EQUAL,
+                    rowKey);
+
+            // Specify a partition query
+            TableQuery<T> rowKeyQuery =
+                    TableQuery.from(entityClass)
+                            .where(rowKeyFilter);
+
+            // Collect entities.
+            List<T> list = new ArrayList<>();
+            ResultContinuation token = null;
+
+            do {
+                ResultSegment<T> queryResult = cloudTable.executeSegmented(rowKeyQuery, token);
+                list.addAll(queryResult.getResults());
+                token = queryResult.getContinuationToken();
+            } while (token != null);
+
+            return !list.isEmpty() ? list.get(0) : null;
         } catch (Exception e) {
             // Output the stack trace.
             e.printStackTrace();

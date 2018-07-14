@@ -1,18 +1,18 @@
 package io.nambm.buildhabit.entity;
 
-import com.microsoft.azure.storage.table.TableServiceEntity;
 import io.nambm.buildhabit.model.habit.HabitModel;
 import io.nambm.buildhabit.model.habit.Schedule;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
 import io.nambm.buildhabit.util.JsonUtils;
 
 @AzureTableName("habit")
-public class HabitEntity extends TableServiceEntity {
+public class HabitEntity extends GenericEntity<HabitModel> {
     private String content;
     private String schedules;
     private String tags;
     private String timeRange;
     private String groupId;
+    private String privateMode;
 
     public HabitEntity() {
     }
@@ -57,6 +57,14 @@ public class HabitEntity extends TableServiceEntity {
         this.groupId = groupId;
     }
 
+    public String getPrivateMode() {
+        return privateMode;
+    }
+
+    public void setPrivateMode(String privateMode) {
+        this.privateMode = privateMode;
+    }
+
     public HabitModel toModel() {
         HabitModel model = new HabitModel();
 
@@ -74,6 +82,7 @@ public class HabitEntity extends TableServiceEntity {
         model.setEndTime(JsonUtils.getValue(timeRange, "endTime", Long.class));
 
         model.setGroupId(this.groupId);
+        model.setPrivateMode(this.privateMode);
 
         return model;
     }

@@ -39,6 +39,18 @@ public interface HabitControllerV1 {
     ResponseEntity update(String username, String id, String title, String description,
                        String icon, String schedule, String tags);
 
+    @ApiOperation("Edit tags for habit")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", defaultValue = "", value = "Habit Id"),
+            @ApiImplicitParam(name = "tags", value = "Tags", defaultValue = "[]"),
+            @ApiImplicitParam(name = "action", value = "Action (add/remove)", defaultValue = "add")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Tags has been updated"),
+            @ApiResponse(code = 404, message = "Habit not found")
+    })
+    ResponseEntity editTags(String id, String tags, String action);
+
     @ApiOperation("Stop a habit")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),

@@ -19,6 +19,8 @@ public interface HabitController {
     ResponseEntity<String> checkDoneV2(String body);
     ResponseEntity<String> undoCheckDone(String body);
 
+    ResponseEntity<String> editTags(String body);
+
     @ApiOperation("Get habit by ID")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", value = "Username", defaultValue = "nambm"),
@@ -65,4 +67,14 @@ public interface HabitController {
             @ApiResponse(code = 200, message = "OK")
     })
     ResponseEntity<StatisticResponse> getLogs(String username, String habitId, int offsetMillis);
+
+    @ApiOperation("Get Habit by Tag")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),
+            @ApiImplicitParam(name = "tagName", defaultValue = "", value = "Tag")
+    })
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK")
+    })
+    ResponseEntity<List<HabitModel>> getHabitsByTag(String username, String tagName);
 }

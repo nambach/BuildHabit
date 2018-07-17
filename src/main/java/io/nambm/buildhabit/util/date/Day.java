@@ -42,16 +42,16 @@ public class Day {
                 '}';
     }
 
-    public boolean equals(Day day, String bound) {
-        if (Schedule.Repetition.WEEKLY.equals(bound)) {
+    public boolean equals(Day day, String repetition) {
+        if (Schedule.Repetition.WEEKLY.equals(repetition)) {
             return this.day.equals(day.day);
         }
 
-        if (Schedule.Repetition.MONTHLY.equals(bound)) {
+        if (Schedule.Repetition.MONTHLY.equals(repetition)) {
             return this.date == day.date;
         }
 
-        if (Schedule.Repetition.YEARLY.equals(bound)) {
+        if (Schedule.Repetition.YEARLY.equals(repetition)) {
             return this.date == day.date && this.month == day.month;
         }
 

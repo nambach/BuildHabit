@@ -212,6 +212,12 @@ public class HabitServiceImpl implements HabitService {
                         // Calculate the time to alarm
                         long timeToAlarm = getAlarmTimeMillis(day, habit.getSchedule().getFrom(), calendar);
 
+                        // Check if time to alarm is valid
+                        if (timeToAlarm < habit.getStartTime() || (timeToAlarm > habit.getEndTime() && habit.getEndTime() != -1)) {
+                            continue;
+                        }
+
+                        // Clone habit and put along with its alarm time
                         classifiedHabits.get(day).getHabits()
                                 .add(DailyHabitModel.from(habit, timeToAlarm, true));
 

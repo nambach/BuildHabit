@@ -7,4 +7,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserBusinessImpl extends GenericBusinessImpl<UserModel, UserEntity> implements UserBusiness {
+
+    @Override
+    public UserModel get(String username) {
+        UserModel wrapper = new UserModel();
+        wrapper.setUsername(username);
+        return get(wrapper);
+    }
 }

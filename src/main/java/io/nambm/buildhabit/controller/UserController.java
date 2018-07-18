@@ -10,6 +10,9 @@ import java.util.List;
 @Api(description = "User API")
 public interface UserController {
 
+    // Sign up account
+    ResponseEntity<String> signUp(String body);
+
     @ApiOperation("Add new user")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "username", defaultValue = "nambm", value = "Username"),

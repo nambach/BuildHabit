@@ -5,6 +5,13 @@ import io.nambm.buildhabit.model.GenericModel;
 
 public class UserModel extends GenericModel<UserEntity> {
 
+    public static class Role {
+        public static final String USER = "USER";
+        public static final String ADMIN = "ADMIN";
+    }
+
+    public static final String DEFAULT_PASSWORD = "12345";
+
     public static final String ACC_ACTIVATED = "activated";
     public static final String ACC_PENDING = "pending";
     public static final String ACC_BLOCKED = "blocked";

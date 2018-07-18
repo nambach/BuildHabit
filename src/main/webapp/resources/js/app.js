@@ -1,14 +1,12 @@
 var callAjax = function (url, data, method, async, loading, callback, errorCallback) {
-    var token = window.localStorage.getItem("token");
-    var isTokenSetup = window.localStorage.getItem("isTokenSetup");
+    var token = window.sessionStorage.getItem("token");
 
-    if (token && isTokenSetup === undefined) {
+    if (token) {
         $.ajaxSetup({
-            beforeSend: function(xhr) {
+            beforeSend: function (xhr) {
                 xhr.setRequestHeader('Authorization', token);
             }
         });
-        window.localStorage.setItem("isTokenSetup", "true");
     }
 
     $.ajax({
@@ -16,7 +14,7 @@ var callAjax = function (url, data, method, async, loading, callback, errorCallb
         data: data,
         type: method,
         async: async,
-        success: function(result){
+        success: function (result) {
             if (callback) {
                 callback(result);
             }

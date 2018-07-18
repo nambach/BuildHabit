@@ -159,7 +159,7 @@
 <script type="text/javascript">
     jQuery(document).ready(function() {
         $ = jQuery;
-        loginOctopus.init();
+        userOctopus.init();
     } );
 </script>
 

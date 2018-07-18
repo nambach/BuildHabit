@@ -13,3 +13,14 @@
 <script src="${pageContext.request.contextPath}/resources/lib/popper-1-12-3/popper.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/template/suffee-admin/assets/js/plugins.js"></script>
 <script src="${pageContext.request.contextPath}/resources/template/suffee-admin/assets/js/main.js"></script>
+
+<script type="text/javascript">
+    document.addEventListener("DOMContentLoaded", function(event) {
+        $ = jQuery;
+        if (typeof loginView === "undefined") {
+            if (typeof window.sessionStorage.getItem("token") !== "string") {
+                window.location.href = "/";
+            }
+        }
+    });
+</script>

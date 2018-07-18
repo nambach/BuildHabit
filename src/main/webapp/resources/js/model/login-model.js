@@ -6,13 +6,15 @@ var loginModel = {
         };
         $.ajax({
             url: "/login",
-            data: data,
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: "json",
             type: "POST",
             async: false,
             success: function (data) {
-                if (data) data = JSON.parse(data);
-                window.localStorage.setItem("token", data);
-                window.href = "/";
+                console.log(data);
+                window.sessionStorage.setItem("token", data);
+                window.location.href = "/home";
             },
             error: function (xhr, status, error) {
                 if (errorCallback) {

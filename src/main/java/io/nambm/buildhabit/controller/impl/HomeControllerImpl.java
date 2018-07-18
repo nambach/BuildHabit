@@ -10,7 +10,7 @@ public class HomeControllerImpl implements HomeController {
 
     @GetMapping("/")
     public ModelAndView home() {
-        return new ModelAndView("home/index");
+        return new ModelAndView("login/login");
     }
 
     @GetMapping("/demo-geo")

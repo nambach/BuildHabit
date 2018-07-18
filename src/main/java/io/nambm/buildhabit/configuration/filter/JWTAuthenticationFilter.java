@@ -1,6 +1,7 @@
 package io.nambm.buildhabit.configuration.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.nambm.buildhabit.business.UserBusiness;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import static io.nambm.buildhabit.constant.SecurityConstants.*;
 
@@ -61,5 +63,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .compact();
 
         response.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        if (request.getRequestURI().contains("login")) {
+            response.getWriter().write(new Gson().toJson(TOKEN_PREFIX + token));
+        }
     }
 }

@@ -1,5 +1,6 @@
 package io.nambm.buildhabit.controller.impl;
 
+import com.google.gson.Gson;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.nambm.buildhabit.controller.UserController;
@@ -63,7 +64,7 @@ public class UserControllerImpl implements UserController {
                     .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                     .signWith(SignatureAlgorithm.HS512, SECRET.getBytes())
                     .compact();
-            return new ResponseEntity<>(TOKEN_PREFIX + token, status);
+            return new ResponseEntity<>(new Gson().toJson(TOKEN_PREFIX + token), status);
         }
 
         return new ResponseEntity<>("No thing happened", status);

@@ -70,7 +70,12 @@ public class HabitControllerImpl implements HabitController {
     public ResponseEntity<String> stopHabitV2(@RequestBody String body) {
         logger.info("Start: /habit/stop");
 
-        HabitModel habitModel = HabitModel.parseRequest(body);
+        String username = JsonUtils.getValue(body, "username");
+        String habitId = JsonUtils.getValue(body, "habitId");
+
+        HabitModel habitModel = new HabitModel();
+        habitModel.setUsername(username);
+        habitModel.setId(habitId);
 
         HttpStatus status = habitService.stopHabit(habitModel);
 

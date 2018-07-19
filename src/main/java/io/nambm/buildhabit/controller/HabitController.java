@@ -14,6 +14,7 @@ public interface HabitController {
 
     ResponseEntity<String> addV2(String body);
     ResponseEntity<String> updateV2(String body);
+
     ResponseEntity<String> stopHabitV2(String body);
 
     ResponseEntity<String> checkDoneV2(String body);

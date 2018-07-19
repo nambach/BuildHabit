@@ -177,6 +177,9 @@ public class TableServiceImpl<T extends GenericEntity> implements TableService<T
 
     @Override
     public T getEntity(String partitionKey, String rowKey) {
+        if (partitionKey == null || rowKey == null) {
+            return null;
+        }
         try {
             // Create an operation to retrieve the entity with partition key and row key
             TableOperation retrieveOperation = TableOperation.retrieve(partitionKey, rowKey, entityClass);
@@ -198,6 +201,9 @@ public class TableServiceImpl<T extends GenericEntity> implements TableService<T
      */
     @Override
     public T getEntity(String rowKey) {
+        if (rowKey == null) {
+            return null;
+        }
         try {
 
             // Prepare partitionKey filter

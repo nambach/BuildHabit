@@ -169,6 +169,8 @@ public class HabitModel extends GenericModel<HabitEntity> {
         String icon = JsonUtils.getValue(body, "icon");
         String schedule = JsonUtils.getValue(body, "schedule");
         String tags = JsonUtils.getValue(body, "tags");
+        Long startTime = JsonUtils.getValue(body, "startTime", Long.class);
+        Long endTime = JsonUtils.getValue(body, "endTime", Long.class);
 
         habitModel.setUsername(username);
         habitModel.setId(id);
@@ -179,6 +181,17 @@ public class HabitModel extends GenericModel<HabitEntity> {
 
         habitModel.setSchedule(Schedule.from(schedule));
         habitModel.setTags(JsonUtils.getArray(tags, String.class));
+
+        if (startTime != null) {
+            habitModel.setStartTime(startTime);
+        } else {
+            habitModel.setStartTime(System.currentTimeMillis());
+        }
+        if (endTime != null) {
+            habitModel.setEndTime(endTime);
+        } else {
+            habitModel.setEndTime(-1L);
+        }
 
         return habitModel;
     }

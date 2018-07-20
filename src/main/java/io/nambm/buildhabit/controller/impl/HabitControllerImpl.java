@@ -45,9 +45,6 @@ public class HabitControllerImpl implements HabitController {
 
         habitModel.setId(habitModel.generateId());
 
-        habitModel.setStartTime(System.currentTimeMillis());
-        habitModel.setEndTime(-1L);
-
         HttpStatus status = habitService.insert(habitModel);
 
         logger.info("End: /habit/add, " + status);

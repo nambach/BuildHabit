@@ -2,18 +2,19 @@ package io.nambm.buildhabit.entity;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.nambm.buildhabit.model.user.Follower;
-import io.nambm.buildhabit.model.user.FollowingModel;
+import io.nambm.buildhabit.model.user.follow.Follower;
+import io.nambm.buildhabit.model.user.follow.Following;
+import io.nambm.buildhabit.model.user.FollowModel;
 
 import java.util.List;
 
-public class FollowingEntity extends GenericEntity<FollowingModel> {
+public class FollowEntity extends GenericEntity<FollowModel> {
 
     private String username;
     private String followers;
     private String followings;
 
-    public FollowingEntity() {
+    public FollowEntity() {
     }
 
     public String getUsername() {
@@ -41,13 +42,15 @@ public class FollowingEntity extends GenericEntity<FollowingModel> {
     }
 
     @Override
-    public FollowingModel toModel() {
+    public FollowModel toModel() {
         Gson gson = new Gson();
 
-        FollowingModel model = new FollowingModel();
+        FollowModel model = new FollowModel();
 
         model.setUsername(username);
         model.setFollowers(gson.fromJson(followers, new TypeToken<List<Follower>>(){}.getType()));
-        return null;
+        model.setFollowings(gson.fromJson(followings, new TypeToken<List<Following>>(){}.getType()));
+
+        return model;
     }
 }

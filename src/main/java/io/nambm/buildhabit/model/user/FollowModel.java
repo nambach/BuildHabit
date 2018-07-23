@@ -4,20 +4,19 @@ import com.google.gson.Gson;
 import io.nambm.buildhabit.entity.FollowEntity;
 import io.nambm.buildhabit.model.GenericModel;
 import io.nambm.buildhabit.model.user.follow.Follower;
+import io.nambm.buildhabit.model.user.follow.Followers;
 import io.nambm.buildhabit.model.user.follow.Following;
-
-import java.util.ArrayList;
-import java.util.List;
+import io.nambm.buildhabit.model.user.follow.Followings;
 
 public class FollowModel extends GenericModel<FollowEntity> {
 
     private String username;
-    private List<Follower> followers;
-    private List<Following> followings;
+    private Followers followers;
+    private Followings followings;
 
     public FollowModel() {
-        followers = new ArrayList<>();
-        followings = new ArrayList<>();
+        followers = new Followers();
+        followings = new Followings();
     }
 
     public void addFollower(UserModel follower) {
@@ -74,19 +73,19 @@ public class FollowModel extends GenericModel<FollowEntity> {
         this.username = username;
     }
 
-    public List<Follower> getFollowers() {
+    public Followers getFollowers() {
         return followers;
     }
 
-    public void setFollowers(List<Follower> followers) {
+    public void setFollowers(Followers followers) {
         this.followers = followers;
     }
 
-    public List<Following> getFollowings() {
+    public Followings getFollowings() {
         return followings;
     }
 
-    public void setFollowings(List<Following> followings) {
+    public void setFollowings(Followings followings) {
         this.followings = followings;
     }
 

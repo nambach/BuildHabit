@@ -20,18 +20,29 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public HttpStatus follow(UserModel user, UserModel target) {
+        // Add relationship between user and following target
+        FollowModel userToTarget = followBusiness.getByUsername(user.getUsername());
+        if (userToTarget != null) {
+            userToTarget.follow(target);
+            followBusiness.updateFollowings(userToTarget);
+        } else {
+            userToTarget = new FollowModel();
+            userToTarget.setUsername(user.getUsername());
+            userToTarget.follow(target);
+            followBusiness.insert(userToTarget);
+        }
 
-        FollowModel userToTarget = new FollowModel();
-        userToTarget.setUsername(user.getUsername());
-        userToTarget.follow(target);
-
-        followBusiness.insert(userToTarget);
-
-        FollowModel celebrity = new FollowModel();
-        celebrity.setUsername(target.getUsername());
-        celebrity.addFollower(user);
-
-        followBusiness.insert(celebrity);
+        // Add reverse relationship between following target and user
+        FollowModel celebrity = followBusiness.getByUsername(target.getUsername());
+        if (celebrity != null) {
+            celebrity.addFollower(user);
+            followBusiness.updateFollowers(celebrity);
+        } else {
+            celebrity = new FollowModel();
+            celebrity.setUsername(target.getUsername());
+            celebrity.addFollower(user);
+            followBusiness.insert(celebrity);
+        }
 
         return HttpStatus.OK;
     }
@@ -41,13 +52,13 @@ public class FollowServiceImpl implements FollowService {
         FollowModel userToTarget = followBusiness.getByUsername(user.getUsername());
         if (userToTarget != null) {
             userToTarget.unfollow(target);
-            followBusiness.update(userToTarget);
+            followBusiness.updateFollowings(userToTarget);
         }
 
         FollowModel celebrity = followBusiness.getByUsername(target.getUsername());
         if (celebrity != null) {
             celebrity.removeFollower(user);
-            followBusiness.update(celebrity);
+            followBusiness.updateFollowers(celebrity);
         }
 
         return HttpStatus.OK;

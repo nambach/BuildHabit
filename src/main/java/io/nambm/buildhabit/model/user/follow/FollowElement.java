@@ -4,22 +4,25 @@ import java.util.ArrayList;
 
 public class FollowElement extends ArrayList<String> {
 
+    public static final int USERNAME_INDEX = 0;
+    public static final int FOLLOW_TIME_INDEX = 1;
+
     public FollowElement(String username, Long startTime) {
-        add(0, username);
-        add(1, startTime + "");
+        add(USERNAME_INDEX, username);
+        add(FOLLOW_TIME_INDEX, startTime + "");
     }
 
     public String getUsername() {
-        return get(0);
+        return get(USERNAME_INDEX);
     }
 
     public void setUsername(String username) {
-        add(0, username);
+        add(USERNAME_INDEX, username);
     }
 
     public long getStartTime() {
         try {
-            return Long.parseLong(get(1));
+            return Long.parseLong(get(FOLLOW_TIME_INDEX));
         } catch (Exception e) {
             return -1L;
         }
@@ -29,6 +32,6 @@ public class FollowElement extends ArrayList<String> {
         if (l == null) {
             l = -1L;
         }
-        add(1, l + "");
+        add(FOLLOW_TIME_INDEX, l + "");
     }
 }

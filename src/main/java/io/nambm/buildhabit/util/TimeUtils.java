@@ -67,7 +67,9 @@ public class TimeUtils {
     }
 
     public static Day convert(Calendar calendar) {
-        String dayOfWeek = new SimpleDateFormat("EE").format(calendar.getTime());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EE");
+        dateFormat.setTimeZone(new SimpleTimeZone(calendar.getTimeZone().getRawOffset(), "ID"));
+        String dayOfWeek = dateFormat.format(calendar.getTime());
         return new Day(dayOfWeek.toLowerCase(),
                 calendar.get(Calendar.DAY_OF_MONTH),
                 calendar.get(Calendar.MONTH) + 1,   // Calendar.MONTH count from 0
@@ -149,9 +151,10 @@ public class TimeUtils {
         return calendar.getTimeInMillis();
     }
 
-    public static long getTimeMillis(String time, String timeUtilsPattern) {
+    public static long getTimeMillis(String time, String timeUtilsPattern, int offsetMillis) {
         if (DD_MM_YYYY.equals(timeUtilsPattern)) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(timeUtilsPattern);
+            dateFormat.setTimeZone(new SimpleTimeZone(offsetMillis, "ID"));
             try {
                 return dateFormat.parse(time).getTime();
             } catch (ParseException ignored) {
@@ -160,6 +163,7 @@ public class TimeUtils {
 
         if (MM_DD_YYYY.equals(timeUtilsPattern)) {
             SimpleDateFormat dateFormat = new SimpleDateFormat(timeUtilsPattern);
+            dateFormat.setTimeZone(new SimpleTimeZone(offsetMillis, "ID"));
             try {
                 return dateFormat.parse(time).getTime();
             } catch (ParseException ignored) {

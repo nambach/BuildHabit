@@ -161,8 +161,8 @@ public class HabitControllerImpl implements HabitController {
                                                       @RequestParam int offsetMillis) {
         logger.info("Start: /habit/by-time, username=" + username);
 
-        long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.MM_DD_YYYY);
-        long toTime = TimeUtils.getTimeMillis(to, TimeUtils.MM_DD_YYYY);
+        long fromTime = TimeUtils.getTimeMillis(from, TimeUtils.MM_DD_YYYY, offsetMillis);
+        long toTime = TimeUtils.getTimeMillis(to, TimeUtils.MM_DD_YYYY, offsetMillis);
 
         if (fromTime <= 0 || toTime <= 0) {
             logger.info("End: /habit/by-time, status=" + HttpStatus.BAD_REQUEST);

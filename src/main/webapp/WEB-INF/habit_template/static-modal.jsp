@@ -26,34 +26,77 @@
 
                 <form id="staticModalForm">
                     <div class="form-group">
-                        <label for="inputUsername" class="form-control-label">
-                            Username
+                        <label for="inputTitle" class="form-control-label">
+                            Title
                         </label>
-                        <input id="inputUsername" class="form-control" type="text">
+                        <input id="inputTitle" class="form-control" type="text">
                     </div>
 
                     <div class="form-group">
-                        <label for="inputFullName" class="form-control-label">
-                            Full Name
+                        <label for="inputDescription" class="form-control-label">
+                            Description
                         </label>
-                        <input id="inputFullName" class="form-control" type="text">
+                        <input id="inputDescription" class="form-control" type="text">
                     </div>
 
                     <div class="form-group">
-                        <label for="inputInformation" class="form-control-label">
-                            Information
+                        <label for="inputIcon" class="form-control-label">
+                            Icon
                         </label>
-                        <input id="inputInformation" class="form-control" type="text">
+                        <input id="inputIcon" class="form-control" type="text" value="coffee">
                     </div>
 
                     <div class="form-group">
-                        <label for="inputInformation" class="form-control-label">
-                            Information
+                        <label for="selectRepetition" class="form-control-label">
+                            Repetition
                         </label>
-                        <input id="inputFile" class="form-control" type="file">
-                        <br/>
-                        <img id="inputFileImg" src="">
+                        <select name="select" id="selectRepetition" class="form-control"></select>
                     </div>
+
+                    <div id="times-group" class="form-group">
+                        <label for="selectTimes" class="form-control-label">
+                            Times
+                        </label>
+                        <select name="times[]" id="selectTimes" class="form-control" multiple="multiple"></select>
+                        <div id="inputYearly" class="hidden" style="display: block">
+                            <select name="date" class="form-control"
+                                    style="display: inline; width: 48%; margin: 0 0%"></select>
+                            <select name="month" class="form-control"
+                                    style="display: inline; width: 48%; margin: 0 1%"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputFrom" class="form-control-label">
+                            From
+                        </label>
+                        <div id="inputFrom" style="display: block">
+                            <select name="hour" class="form-control"
+                                    style="display: inline; width: 48%; margin: 0 0%"></select>
+                            <select name="minute" class="form-control"
+                                    style="display: inline; width: 48%; margin: 0 1%"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTo" class="form-control-label">
+                            To
+                        </label>
+                        <div id="inputTo" style="display: block">
+                            <select name="hour" class="form-control"
+                                    style="display: inline; width: 48%; margin: 0 0%"></select>
+                            <select name="minute" class="form-control"
+                                    style="display: inline; width: 48%; margin: 0 1%"></select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTags" class="form-control-label">
+                            Tags
+                        </label>
+                        <input id="inputTags" class="form-control" type="text">
+                    </div>
+
                 </form>
 
             </div>

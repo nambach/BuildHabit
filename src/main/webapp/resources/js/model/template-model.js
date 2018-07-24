@@ -5,7 +5,7 @@ var templateModel = {
     },
 
     addTemplateHabit(data, callback) {
-        callAjax("/habit/v1/add", data, POST, true, true, callback);
+        callAjaxJson("/habit/add", data, POST, true, true, callback);
     },
 
     updatePrivateMode(id, privateMode, callback) {

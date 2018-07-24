@@ -2,8 +2,8 @@ var templateView = {
 
     bootgrid: null,
 
-    fileInput: null,
-    fileImg: null,
+    btnNew: null,
+    staticForm: {},
     btnSubmit: null,
 
     staticModal: null,
@@ -104,11 +104,188 @@ var templateView = {
     },
 
     bindForm() {
-        templateView.fileInput = $("#inputFile");
-        templateView.btnSubmit = $("#btnSubmit");
+        var form = templateView.staticForm;
+        form.title = $("#inputTitle");
+        form.description = $("#inputDescription");
+        form.icon = $("#inputIcon");
+        form.tags = $("#inputTags");
 
+        form.repetition = $("#selectRepetition");
+        form.times = $("#selectTimes");
+        templateView.repetitionBox.initRepetition(form.repetition, form.times);
 
+        form.from = $("#inputFrom");
+        form.to = $("#inputTo");
+        templateView.hourMinuteBox.init(form.from);
+        templateView.hourMinuteBox.init(form.to);
+
+        templateView.btnSubmit = $("#btnSubmit").on("click", function (e) {
+            var data = templateView.validateForm();
+            if (!data) return;
+            templateModel.addTemplateHabit(data, function (data) {
+                alert("Added successfully");
+                templateView.bootgrid.bootgrid("reload");
+                templateView.staticModal.modal("hide");
+            })
+        });
+
+        templateView.btnNew = $("#btnNew").on("click", function () {
+            templateView.staticModal.modal();
+        })
+    },
+
+    validateForm() {
+        var getHourMinute = templateView.hourMinuteBox.getValue;
+        var getRepetitionTimes = templateView.repetitionBox.getValue;
+        var form = templateView.staticForm;
+
+        var title, description, icon, tags, repetition, from, to;
+        if ((title = form.title.val().trim()) === "") return false;
+        if ((description = form.description.val().trim()) === "") return false;
+        if ((icon = form.icon.val().trim()) === "") return false;
+        if ((tags = form.tags.val().trim()) === "") return false;
+
+        tags = tags.split(",");
+
+        repetition = getRepetitionTimes(form.repetition, form.times);
+        from = getHourMinute(form.from);
+        to = getHourMinute(form.to);
+
+        var schedule = $.extend({}, repetition, {from: from, to: to});
+
+        var data = JSON.stringify({
+            username: "template",
+            title: title,
+            description: description,
+            icon: icon,
+            tags: tags,
+            schedule: schedule,
+            startTime: new Date().getTime(),
+            endTime: -1
+        });
+
+        console.log(JSON.parse(data));
+        return data;
+    },
+
+    repetitionBox: {
+        initRepetition($elRep, $elTimes) {
+
+            //Render Yearly
+            templateView.repetitionBox.renderYearly();
+
+            //Render Repetition and Times
+            $elRep.append("<option value='daily'>Daily</option>")
+                .append("<option value='weekly'>Weekly</option>")
+                .append("<option value='monthly'>Monthly</option>")
+                .append("<option value='yearly'>Yearly</option>")
+                .on("change", function () {
+                    // Hide Yearly Box
+                    $("#inputYearly").addClass("hidden");
+
+                    var $timesGroup = $("#times-group");
+
+                    var rep = $(this).find("option:selected").val();
+                    switch (rep) {
+                        case "daily":
+                            $timesGroup.addClass("hidden");
+                            break;
+                        case "weekly":
+                            $timesGroup.removeClass("hidden");
+                            $elTimes.chosen("destroy");
+                            templateView.repetitionBox.renderWeekly($elTimes);
+                            $elTimes.chosen();
+                            break;
+                        case "monthly":
+                            $timesGroup.removeClass("hidden");
+                            $elTimes.chosen("destroy");
+                            templateView.repetitionBox.renderMonthly($elTimes);
+                            $elTimes.chosen();
+                            break;
+                        case "yearly":
+                            $timesGroup.removeClass("hidden");
+                            $("#inputYearly").removeClass("hidden")
+                            break;
+                    }
+                });
+        },
+
+        renderWeekly($el) {
+            $el.find("option").remove();
+
+            $el.append("<option value='mon'>Monday</option>")
+                .append("<option value='tue'>Tuesday</option>")
+                .append("<option value='wed'>Wednesday</option>")
+                .append("<option value='thu'>Thursday</option>")
+                .append("<option value='fri'>Friday</option>")
+                .append("<option value='sat'>Saturday</option>")
+                .append("<option value='sun'>Sunday</option>");
+        },
+
+        renderMonthly($el) {
+            $el.find("option").remove();
+
+            for (var i = 1; i <= 31; i++) {
+                $el.append($("<option>", {
+                    value: i,
+                    text: i + ""
+                }));
+            }
+        },
+
+        renderYearly() {
+            var $el = $("#inputYearly");
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            //Render dates
+            templateView.repetitionBox.renderMonthly($el.find("select[name='date']"));
+
+            //Render months
+            var $date = $el.find("select[name='month']");
+            for (var i = 1; i <= 12; i++) {
+                $date.append($("<option>", {
+                    value: i,
+                    text: months[(i-1)]
+                }));
+            }
+        },
+
+        getValue($elRep, $elTimes) {
+            var rep = $elRep.val();
+            var times = $elTimes.val();
+            return {
+                repetition: rep,
+                times: times
+            }
+        }
+    },
+
+    hourMinuteBox: {
+
+        init($el) {
+            var i;
+            var selectHour = $el.find("select[name='hour']");
+            for (i = 0; i < 24; i++) {
+                selectHour.append($("<option>", {
+                    value: i,
+                    text: i > 9 ? i : "0" + i
+                }));
+            }
+
+            var selectMinute = $el.find("select[name='minute']");
+            for (i = 0; i < 60; i++) {
+                selectMinute.append($("<option>", {
+                    value: i,
+                    text: i > 9 ? i : "0" + i
+                }));
+            }
+        },
+
+        getValue($el) {
+            return {
+                hour: $el.find("select[name='hour']").val(),
+                minute: $el.find("select[name='minute']").val()
+            }
+        }
     }
-
-
 };

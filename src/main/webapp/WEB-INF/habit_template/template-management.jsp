@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/lib/jquery-bootgrid-1-3-1/jquery.bootgrid.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/bootgrid.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/app.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/lib/chosen/chosen.min.css">
 </head>
 <body class="open">
 
@@ -110,7 +111,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <strong class="card-title">Data Table</strong>
+                            <strong class="card-title">Data Table <span id="btnNew" style="cursor: pointer" class="fa-pull-right fa fa-2x fa-plus-square-o"></span></strong>
                         </div>
                         <div class="card-body">
 
@@ -148,6 +149,8 @@
 
 <script src="${pageContext.request.contextPath}/resources/lib/jquery-bootgrid-1-3-1/jquery.bootgrid.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/lib/jquery-bootgrid-1-3-1/jquery.bootgrid.fa.min.js"></script>
+
+<script src="${pageContext.request.contextPath}/resources/lib/chosen/chosen.jquery.min.js"></script>
 
 
 <script src="${pageContext.request.contextPath}/resources/js/model/template-model.js"></script>

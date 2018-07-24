@@ -69,6 +69,32 @@ public class GenericBusinessImpl<M extends GenericModel<E>, E extends GenericEnt
     }
 
     @Override
+    public HttpStatus updateByNotNull(M model) {
+        E currentEntity = tableService.getEntity(model.getPartitionKey(), model.getRowKey());
+        if (currentEntity != null) {
+            M currentModel = currentEntity.toModel();
+
+            for (Field field : modelClass.getDeclaredFields()) {
+                try {
+                    field.setAccessible(true);
+                    Object fieldValue = field.get(model);
+                    if (fieldValue == null) {
+                        continue;
+                    }
+                    field.set(currentModel, fieldValue);
+                } catch (IllegalAccessException ignored) {
+                }
+            }
+
+            return tableService.insertOrReplace(currentModel.toEntity())
+                    ? HttpStatus.OK
+                    : HttpStatus.INTERNAL_SERVER_ERROR;
+        } else {
+            return HttpStatus.NOT_FOUND;
+        }
+    }
+
+    @Override
     public HttpStatus remove(M model) {
         E entity = tableService.getEntity(model.getPartitionKey(), model.getRowKey());
         if (entity != null) {

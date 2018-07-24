@@ -10,6 +10,8 @@ public interface GenericBusiness<T> {
 
     HttpStatus update(T model, String... properties);
 
+    HttpStatus updateByNotNull(T model);
+
     HttpStatus remove(T model);
 
     T get(T model);

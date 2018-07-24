@@ -94,6 +94,12 @@ public class HabitServiceImpl implements HabitService {
     }
 
     @Override
+    public HttpStatus updateByNotNull(HabitModel model) {
+        HttpStatus status = habitBusiness.updateByNotNull(model);
+        return status;
+    }
+
+    @Override
     public HttpStatus stopHabit(HabitModel model) {
         model.setEndTime(System.currentTimeMillis());
         HttpStatus status = habitBusiness.update(model, "endTime");

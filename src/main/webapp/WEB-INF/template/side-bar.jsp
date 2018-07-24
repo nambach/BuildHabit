@@ -37,6 +37,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="${pageContext.request.contextPath}/template-management">
+                        <i class="menu-icon fa fa-users"></i>
+                        Template Manager
+                    </a>
+                </li>
+                <li>
                     <a href="${context}/tables-data.html">
                         <i class="menu-icon fa fa-users"></i>
                         Table Data

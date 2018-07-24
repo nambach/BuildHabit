@@ -196,6 +196,44 @@ public class HabitModel extends GenericModel<HabitEntity> {
         return habitModel;
     }
 
+    public static HabitModel parseRequestForUpdate(String body) {
+        HabitModel habitModel = new HabitModel();
+
+        String username = JsonUtils.getValue(body, "username");
+        String id = JsonUtils.getValue(body, "id");
+        String title = JsonUtils.getValue(body, "title");
+        String description = JsonUtils.getValue(body, "description");
+        String icon = JsonUtils.getValue(body, "icon");
+        String schedule = JsonUtils.getValue(body, "schedule");
+        String tags = JsonUtils.getValue(body, "tags");
+        Long startTime = JsonUtils.getValue(body, "startTime", Long.class);
+        Long endTime = JsonUtils.getValue(body, "endTime", Long.class);
+        String groupId = JsonUtils.getValue(body, "groupId");
+        String privateMode = JsonUtils.getValue(body, "privateMode");
+
+        habitModel.setUsername(username);
+        habitModel.setId(id);
+
+        habitModel.setTitle(title);
+        habitModel.setDescription(description);
+        habitModel.setIcon(icon);
+
+        if (schedule != null) {
+            habitModel.setSchedule(Schedule.from(schedule));
+        }
+        if (tags != null) {
+            habitModel.setTags(JsonUtils.getArray(tags, String.class));
+        }
+
+        habitModel.setStartTime(startTime);
+        habitModel.setEndTime(endTime);
+
+        habitModel.setGroupId(groupId);
+        habitModel.setPrivateMode(privateMode);
+
+        return habitModel;
+    }
+
     public String generateId() {
         if (this.username == null) {
             this.username = "";

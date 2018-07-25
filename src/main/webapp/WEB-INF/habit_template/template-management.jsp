@@ -152,6 +152,8 @@
 
 <script src="${pageContext.request.contextPath}/resources/lib/chosen/chosen.jquery.min.js"></script>
 
+<script src="${pageContext.request.contextPath}/resources/lib/notifyjs/notify.min.js"></script>
+
 
 <script src="${pageContext.request.contextPath}/resources/js/model/template-model.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/view/template-view.js"></script>

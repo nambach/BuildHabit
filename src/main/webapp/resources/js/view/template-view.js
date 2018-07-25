@@ -5,11 +5,14 @@ var templateView = {
     btnNew: null,
     staticForm: {},
     btnSubmit: null,
+    btnSubmitUpdate: null,
 
     staticModal: null,
 
     init: function () {
-        this.staticModal = $("#staticModal");
+        this.staticModal = $("#staticModal").on("shown.bs.modal", function () {
+            templateView.staticForm.times.chosen();
+        });
         this.bindBootgrid();
         this.bindForm();
     },
@@ -19,7 +22,7 @@ var templateView = {
             ajax: true,
             url: "/template/page",
             method: "GET",
-            rowCount: 10,
+            rowCount: 5,
             navigation: 2,
             requestHandler: function (request) {
                 return request;
@@ -31,12 +34,8 @@ var templateView = {
             formatters: {
                 "schedule": function (column, row) {
                     var convertHour = function(timepoint) {
-                        return timepoint.hour + ":" + timepoint.minute;
+                        return roundByTwoDigit(timepoint.hour) + ":" + roundByTwoDigit(timepoint.minute);
                     };
-
-                    function capitalizeFirstLetter(string) {
-                        return string.charAt(0).toUpperCase() + string.slice(1);
-                    }
 
                     var convertRepetition = function (schedule) {
                         switch (schedule.repetition) {
@@ -52,7 +51,7 @@ var templateView = {
                                 }, "").replace(/^, /g, "");
                             case "yearly":
                                 return "<span class='badge badge-primary'>Yearly</span> in month <br/>" + schedule.times.reduce(function (accum, item) {
-                                    return accum + ", " + item.month;
+                                    return accum + ", " + months[item.month - 1] + "-" + roundByTwoDigit(item.date);
                                 }, "").replace(/^, /g, "");
                         }
                     };
@@ -82,7 +81,8 @@ var templateView = {
                 },
                 "commands": function (column, row) {
                     return "<button type=\"button\" class=\"btn btn-sm btn-outline-primary command-public\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-check\"></span></button> " +
-                        "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary command-private\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-minus-circle\"></span></button>";
+                        "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary command-private\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-minus-circle\"></span></button> " +
+                        "<button type=\"button\" class=\"btn btn-sm btn-outline-success command-edit\" data-row-id=\"" + row.id + "\"><span class=\"fa fa-pencil\"></span></button>";
                 }
             }
         }).on("loaded.rs.jquery.bootgrid", function () {
@@ -97,6 +97,12 @@ var templateView = {
                 templateModel.updatePrivateMode(id, "private", function () {
                     templateView.bootgrid.bootgrid("reload");
                 });
+            }).end().find(".command-edit").on("click", function (e) {
+                var id = $(this).data("row-id");
+                templateModel.getTemplateHabit(id, function (data) {
+                    templateView.staticModal.modal();
+                    templateView.setFormData(data);
+                });
             });
         });
 
@@ -105,6 +111,7 @@ var templateView = {
 
     bindForm() {
         var form = templateView.staticForm;
+        form.id = $("#inputId");
         form.title = $("#inputTitle");
         form.description = $("#inputDescription");
         form.icon = $("#inputIcon");
@@ -123,14 +130,27 @@ var templateView = {
             var data = templateView.validateForm();
             if (!data) return;
             templateModel.addTemplateHabit(data, function (data) {
-                alert("Added successfully");
+                $.notify("Added successfully", { className: "success", position: "top center" });
                 templateView.bootgrid.bootgrid("reload");
                 templateView.staticModal.modal("hide");
+                templateView.clearFormData();
             })
         });
 
         templateView.btnNew = $("#btnNew").on("click", function () {
+            templateView.clearFormData();
             templateView.staticModal.modal();
+        });
+
+        templateView.btnSubmitUpdate = $("#btnSubmitUpdate").on("click", function (e) {
+            var data = templateView.validateForm();
+            if (!data) return;
+            templateModel.updateTemplate(data, function (data) {
+                $.notify("Update successfully", { className: "success", position: "top center" });
+                templateView.bootgrid.bootgrid("reload");
+                templateView.staticModal.modal("hide");
+                templateView.clearFormData();
+            })
         })
     },
 
@@ -139,7 +159,10 @@ var templateView = {
         var getRepetitionTimes = templateView.repetitionBox.getValue;
         var form = templateView.staticForm;
 
-        var title, description, icon, tags, repetition, from, to;
+        var id, title, description, icon, tags, repetition, from, to;
+
+        id = form.id.val();
+
         if ((title = form.title.val().trim()) === "") return false;
         if ((description = form.description.val().trim()) === "") return false;
         if ((icon = form.icon.val().trim()) === "") return false;
@@ -153,7 +176,7 @@ var templateView = {
 
         var schedule = $.extend({}, repetition, {from: from, to: to});
 
-        var data = JSON.stringify({
+        var data = {
             username: "template",
             title: title,
             description: description,
@@ -162,10 +185,60 @@ var templateView = {
             schedule: schedule,
             startTime: new Date().getTime(),
             endTime: -1
-        });
+        };
 
-        console.log(JSON.parse(data));
-        return data;
+        if (typeof id === "string" && id.length > 0) {
+            data.id = id;
+        }
+
+        console.log(data);
+        return JSON.stringify(data);
+    },
+
+    setFormData(data) {
+        templateView.btnSubmit.addClass("hidden");
+        templateView.btnSubmitUpdate.removeClass("hidden");
+
+        var form = templateView.staticForm;
+
+        form.id.val(data.id);
+        form.title.val(data.title);
+        form.description.val(data.description);
+        form.icon.val(data.icon);
+        form.tags.val(data.tags.reduce(function (accum, item) {
+            return accum + "," + item;
+        }).replace(/^,/g, ""));
+
+        form.repetition.val(data.schedule.repetition);
+        form.repetition.trigger("change");
+
+        //Convert Day [object] into array of times
+        var times = templateView.schedule.getTimes(data.schedule);
+        form.times.chosen("destroy");
+        form.times.val(times);
+
+        templateView.hourMinuteBox.setValue(form.from, data.schedule.from);
+        templateView.hourMinuteBox.setValue(form.to, data.schedule.to);
+    },
+
+    clearFormData() {
+        templateView.btnSubmit.removeClass("hidden");
+        templateView.btnSubmitUpdate.addClass("hidden");
+
+        var form = templateView.staticForm;
+
+        form.title.val("");
+        form.description.val("");
+        form.icon.val("");
+        form.tags.val("");
+
+        form.repetition.val("daily");
+        form.repetition.trigger("change");
+        form.times.val([]);
+        form.times.trigger("chosen:updated");
+
+        templateView.hourMinuteBox.clearValue(form.from);
+        templateView.hourMinuteBox.clearValue(form.to);
     },
 
     repetitionBox: {
@@ -182,6 +255,8 @@ var templateView = {
                 .on("change", function () {
                     // Hide Yearly Box
                     $("#inputYearly").addClass("hidden");
+
+                    $elTimes.removeClass("hidden");
 
                     var $timesGroup = $("#times-group");
 
@@ -204,6 +279,7 @@ var templateView = {
                             break;
                         case "yearly":
                             $timesGroup.removeClass("hidden");
+                            $elTimes.addClass("hidden");
                             $("#inputYearly").removeClass("hidden")
                             break;
                     }
@@ -235,7 +311,6 @@ var templateView = {
 
         renderYearly() {
             var $el = $("#inputYearly");
-            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
             //Render dates
             templateView.repetitionBox.renderMonthly($el.find("select[name='date']"));
@@ -268,7 +343,7 @@ var templateView = {
             for (i = 0; i < 24; i++) {
                 selectHour.append($("<option>", {
                     value: i,
-                    text: i > 9 ? i : "0" + i
+                    text: roundByTwoDigit(i)
                 }));
             }
 
@@ -276,7 +351,7 @@ var templateView = {
             for (i = 0; i < 60; i++) {
                 selectMinute.append($("<option>", {
                     value: i,
-                    text: i > 9 ? i : "0" + i
+                    text: roundByTwoDigit(i)
                 }));
             }
         },
@@ -286,6 +361,48 @@ var templateView = {
                 hour: $el.find("select[name='hour']").val(),
                 minute: $el.find("select[name='minute']").val()
             }
+        },
+
+        setValue($el, timePoint) {
+            $el.find("select[name='hour']").val(timePoint.hour);
+            $el.find("select[name='minute']").val(timePoint.minute);
+        },
+
+        clearValue($el) {
+            $el.find("select[name='hour']").val("");
+            $el.find("select[name='minute']").val("");
+        }
+    },
+
+    schedule: {
+
+        getTimes(schedule) {
+            switch (schedule.repetition) {
+                case "daily":
+                    return ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+                case "weekly":
+                    return schedule.times.map(function (item) {
+                        return item.day;
+                    });
+                case "monthly":
+                    return schedule.times.map(function (item) {
+                        return item.date;
+                    });
+                case "yearly":
+                    return schedule.times.map(function (item) {
+                        return item.date + "-" + item.month;
+                    });
+            }
         }
     }
 };
+
+function roundByTwoDigit(number) {
+    return number > 9 ? number : "0" + number;
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

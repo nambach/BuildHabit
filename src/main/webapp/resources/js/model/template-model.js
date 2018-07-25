@@ -13,6 +13,10 @@ var templateModel = {
         callAjaxJson("/habit/edit", data, PUT, true, true, callback);
     },
 
+    updateTemplate(data, callback) {
+        callAjaxJson("/habit/edit", data, PUT, true, true, callback);
+    },
+
     markAsTemplate(id, callback) {
         callAjax("/habit/v1/mark-template", { habitId: id}, POST, true, true, callback);
     }

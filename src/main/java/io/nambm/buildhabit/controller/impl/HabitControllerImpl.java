@@ -126,6 +126,10 @@ public class HabitControllerImpl implements HabitController {
         HabitModel habitModel = HabitModel.parseRequestForUpdate(body);
         HttpStatus status = habitService.updateByNotNull(habitModel);
 
+        if (habitModel.getTags() != null && !habitModel.getTags().isEmpty()) {
+            tagService.importTagsFrom(habitModel);
+        }
+
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 

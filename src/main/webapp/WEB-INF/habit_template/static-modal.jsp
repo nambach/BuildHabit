@@ -25,6 +25,8 @@
             <div class="modal-body">
 
                 <form id="staticModalForm">
+                    <input id="inputId" class="form-control" type="hidden">
+
                     <div class="form-group">
                         <label for="inputTitle" class="form-control-label">
                             Title
@@ -53,7 +55,7 @@
                         <select name="select" id="selectRepetition" class="form-control"></select>
                     </div>
 
-                    <div id="times-group" class="form-group">
+                    <div id="times-group" class="form-group hidden">
                         <label for="selectTimes" class="form-control-label">
                             Times
                         </label>
@@ -102,7 +104,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button id="btnSubmit" type="button" class="btn btn-primary">Submit</button>
+                <button id="btnSubmit" type="button" class="btn btn-primary">Add</button>
+                <button id="btnSubmitUpdate" type="button" class="hidden btn btn-primary">Update</button>
             </div>
         </div>
     </div>

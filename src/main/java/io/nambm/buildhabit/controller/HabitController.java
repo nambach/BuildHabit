@@ -20,6 +20,8 @@ public interface HabitController {
     ResponseEntity<String> checkDoneV2(String body);
     ResponseEntity<String> undoCheckDone(String body);
 
+    ResponseEntity<String> editHabit(String body);
+
     ResponseEntity<String> editTags(String body);
 
     @ApiOperation("Get habit by ID")

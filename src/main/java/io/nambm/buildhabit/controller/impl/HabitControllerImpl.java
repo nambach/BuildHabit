@@ -116,6 +116,23 @@ public class HabitControllerImpl implements HabitController {
         return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
     }
 
+    /**
+     *
+     * @param body username, id, title, description, schedule...
+     * @return
+     */
+    @PutMapping("/habit/edit")
+    public ResponseEntity<String> editHabit(@RequestBody String body) {
+        HabitModel habitModel = HabitModel.parseRequestForUpdate(body);
+        HttpStatus status = habitService.updateByNotNull(habitModel);
+
+        if (habitModel.getTags() != null && !habitModel.getTags().isEmpty()) {
+            tagService.importTagsFrom(habitModel);
+        }
+
+        return new ResponseEntity<>(JsonUtils.EMPTY_OBJECT, status);
+    }
+
     @PutMapping("/habit/edit-tags")
     public ResponseEntity<String> editTags(String body) {
         logger.info("Start: /habit/edit-tags");

@@ -9,6 +9,7 @@ import io.nambm.buildhabit.entity.GenericEntity;
 import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.table.TableService;
 import io.nambm.buildhabit.table.annotation.AzureTableName;
+import io.nambm.buildhabit.table.util.QueryUtils;
 import io.nambm.buildhabit.util.JsonUtils;
 import io.nambm.buildhabit.util.StringUtils;
 
@@ -355,6 +356,11 @@ public class TableServiceImpl<T extends GenericEntity> implements TableService<T
     public BootgridResponse<T> searchPage(int rowCount, int currentPage, String partitionKey, String queryFilter) {
         try {
             String filter = null;
+
+            // Generate PartitionKey Filter
+            if (partitionKey != null) {
+                partitionKey = QueryUtils.getEqualFilter(PARTITION_KEY, partitionKey);
+            }
 
             // Generate and combine filter
             if (partitionKey != null && queryFilter != null) {

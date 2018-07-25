@@ -22,4 +22,6 @@ public class AppConstant {
             this.shortName = shortName;
         }
     }
+
+    public static final String TEMPLATE = "template";
 }

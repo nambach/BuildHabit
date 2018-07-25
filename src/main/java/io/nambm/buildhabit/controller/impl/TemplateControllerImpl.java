@@ -2,11 +2,12 @@ package io.nambm.buildhabit.controller.impl;
 
 import io.nambm.buildhabit.controller.TemplateController;
 import io.nambm.buildhabit.model.habit.HabitModel;
+import io.nambm.buildhabit.model.submodel.BootgridResponse;
 import io.nambm.buildhabit.model.tag.TagHabitsResponse;
-import io.nambm.buildhabit.model.tag.TagModel;
 import io.nambm.buildhabit.service.HabitLogService;
 import io.nambm.buildhabit.service.HabitService;
 import io.nambm.buildhabit.service.TagService;
+import io.nambm.buildhabit.service.TemplateService;
 import io.nambm.buildhabit.table.BlobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
@@ -23,24 +25,37 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static io.nambm.buildhabit.constant.AppConstant.TEMPLATE;
+
 @RestController
 public class TemplateControllerImpl implements TemplateController {
-
-    private static final String TEMPLATE = "template";
 
     Logger logger = LoggerFactory.getLogger(TemplateControllerImpl.class);
 
     private final HabitService habitService;
     private final HabitLogService habitLogService;
+    private final TemplateService templateService;
     private final TagService tagService;
     private final BlobService blobService;
 
     @Autowired
-    public TemplateControllerImpl(HabitService habitService, HabitLogService habitLogService, TagService tagService, BlobService blobService) {
+    public TemplateControllerImpl(HabitService habitService, HabitLogService habitLogService, TemplateService templateService, TagService tagService, BlobService blobService) {
         this.habitService = habitService;
         this.habitLogService = habitLogService;
+        this.templateService = templateService;
         this.tagService = tagService;
         this.blobService = blobService;
+    }
+
+    @GetMapping("/template-management")
+    public ModelAndView handle() {
+        return new ModelAndView("habit_template/template-management");
+    }
+
+    @GetMapping("/template/page")
+    public ResponseEntity<BootgridResponse<HabitModel>> getPage(int current, int rowCount) {
+        BootgridResponse<HabitModel> bootgridResponse = templateService.getPage(current, rowCount);
+        return new ResponseEntity<>(bootgridResponse, HttpStatus.OK);
     }
 
     @GetMapping("/habit-template/all")
@@ -78,6 +93,7 @@ public class TemplateControllerImpl implements TemplateController {
             List<HabitModel> habits = habitModels
                     .stream()
                     .filter(habitModel -> habitModel.getTags().contains(tagName))
+                    .filter(habitModel -> HabitModel.PRIVATE_MODE.PUBLIC.equalsIgnoreCase(habitModel.getPrivateMode()))
                     .collect(Collectors.toList());
             response.setHabits(habits);
 

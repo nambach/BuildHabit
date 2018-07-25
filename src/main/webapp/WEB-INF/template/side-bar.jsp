@@ -37,11 +37,17 @@
                     </a>
                 </li>
                 <li>
-                    <a href="${context}/tables-data.html">
-                        <i class="menu-icon fa fa-users"></i>
-                        Table Data
+                    <a href="${pageContext.request.contextPath}/template-management">
+                        <i class="menu-icon fa fa-copy"></i>
+                        Template Manager
                     </a>
                 </li>
+                <%--<li>--%>
+                    <%--<a href="${context}/tables-data.html">--%>
+                        <%--<i class="menu-icon fa fa-users"></i>--%>
+                        <%--Table Data--%>
+                    <%--</a>--%>
+                <%--</li>--%>
 
                 <h3 class="menu-title">Admin tools</h3><!-- /.menu-title -->
                 <li>
